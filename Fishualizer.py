@@ -3687,7 +3687,7 @@ class Fishualizer(Viewer):
         self.hu_colours = cluster_dict  # for saving
         self.draw_clusters(**cluster_dict, overlap=overlap, verbose=1)
 
-    def draw_all_hus_from_path(self, cluster_dict_path='/home/thijs/repos/zf-rbm/figures/figure_intro/',
+    def draw_all_hus_from_path(self, cluster_dict_path='Content/',
                                cluster_dict_file='colours_2021-01-22.pkl',
                                overlap='max'):
         full_cluster_path = os.path.join(cluster_dict_path, cluster_dict_file)
