@@ -1,0 +1,760 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Controls &#8212; Fishualizer 3 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Controls</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">PyQt5</span> <span class="k">import</span> <span class="n">QtWidgets</span><span class="p">,</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtCore</span>
+<span class="kn">import</span> <span class="nn">pyqtgraph</span> <span class="k">as</span> <span class="nn">pg</span>
+<span class="kn">import</span> <span class="nn">pyqtgraph.opengl</span> <span class="k">as</span> <span class="nn">gl</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">locale</span> <span class="k">import</span> <span class="n">setlocale</span><span class="p">,</span> <span class="n">LC_NUMERIC</span><span class="p">,</span> <span class="n">atof</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;Fishlog&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="remove_alpha"><a class="viewcode-back" href="../Controls.html#Controls.remove_alpha">[docs]</a><span class="k">def</span> <span class="nf">remove_alpha</span><span class="p">(</span><span class="n">gradient</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove transparency from the colors of a QLinearGradient</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gradient: QLinearGradient</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">     n_gradient: QLinearGradient</span>
+<span class="sd">        Opaque gradient</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">gradient</span><span class="o">.</span><span class="n">stops</span><span class="p">()</span>       <span class="c1"># Get the gradient parameters</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>    <span class="c1"># Positions of the stops</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>  <span class="c1"># Colors</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">getRgb</span><span class="p">())</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">colors</span><span class="p">]</span>  <span class="c1"># Removing the alpha value but keeping the same RGB</span>
+    <span class="n">n_gradient</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLinearGradient</span><span class="p">(</span><span class="n">gradient</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span> <span class="n">gradient</span><span class="o">.</span><span class="n">finalStop</span><span class="p">())</span>  <span class="c1"># Creating a similar gradient</span>
+    <span class="n">n_gradient</span><span class="o">.</span><span class="n">setStops</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">colors</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">n_gradient</span></div>
+
+
+<div class="viewcode-block" id="GLViewWidgetPos"><a class="viewcode-back" href="../Controls.html#Controls.GLViewWidgetPos">[docs]</a><span class="k">class</span> <span class="nc">GLViewWidgetPos</span><span class="p">(</span><span class="n">pg</span><span class="o">.</span><span class="n">opengl</span><span class="o">.</span><span class="n">GLViewWidget</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+<div class="viewcode-block" id="GLViewWidgetPos.mousePressEvent"><a class="viewcode-back" href="../Controls.html#Controls.GLViewWidgetPos.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ev</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GLViewWidgetPos</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
+        <span class="c1"># If you do not accept the event, then no move/release events will be received.</span>
+        <span class="n">ev</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GLViewWidgetPos.mouseReleaseEvent"><a class="viewcode-back" href="../Controls.html#Controls.GLViewWidgetPos.mouseReleaseEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ev</span><span class="p">):</span>
+        <span class="c1"># print(ev.pos())</span>
+        <span class="n">modifiers</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGuiApplication</span><span class="o">.</span><span class="n">keyboardModifiers</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">modifiers</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ShiftModifier</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">select_cell</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">pos</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">modifiers</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AltModifier</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">select_cell</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">pos</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GLViewWidgetPos.orbit"><a class="viewcode-back" href="../Controls.html#Controls.GLViewWidgetPos.orbit">[docs]</a>    <span class="k">def</span> <span class="nf">orbit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">azim</span><span class="p">,</span> <span class="n">elev</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Orbits the camera around the center position. *azim* and *elev* are given in degrees.&quot;&quot;&quot;</span>
+        <span class="c1"># Overriden to allow free rotation insteas of clipping at +/-90</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="p">[</span><span class="s1">&#39;azimuth&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">azim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="p">[</span><span class="s1">&#39;elevation&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">elev</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="p">[</span><span class="s1">&#39;elevation&#39;</span><span class="p">]</span> <span class="o">%=</span> <span class="mi">360</span>
+        <span class="c1"># self.opts[&#39;elevation&#39;] = np.clip(self.opts[&#39;elevation&#39;] + elev, -90, 90)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="ColorRangePicker"><a class="viewcode-back" href="../Controls.html#Controls.ColorRangePicker">[docs]</a><span class="k">class</span> <span class="nc">ColorRangePicker</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subclass of QLabel used to make color range picker.</span>
+<span class="sd">    A custom color gradient is shown and the user is able to set a range by left/right clicks to chose the two ends</span>
+<span class="sd">    of the range</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Custom signals. Are class attributes per Qt design</span>
+    <span class="n">top_limit</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">bottom_limit</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmap</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># Storing the pyqtgraph colormap object from which we are making the gradient</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmap</span> <span class="o">=</span> <span class="n">cmap</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cmap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmap</span>
+
+    <span class="nd">@cmap</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">cmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># When the colormap is changed, trigger a refresh of the color picker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmap</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repaint</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ColorRangePicker.mousePressEvent"><a class="viewcode-back" href="../Controls.html#Controls.ColorRangePicker.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ev</span><span class="p">:</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMouseEvent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overridding the default mouse press event to trigger a custom signal</span>
+<span class="sd">        If left click, triggers a top_limit event, if right then triggers a bottom_limit event.</span>
+<span class="sd">        The custom events carry information on the relative position of the click as to make finding the corresponding</span>
+<span class="sd">        color easy</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ev: QtGui.QMouseEvent</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ColorRangePicker</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">top_limit</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="n">ev</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bottom_limit</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="ColorRangePicker.paintEvent"><a class="viewcode-back" href="../Controls.html#Controls.ColorRangePicker.paintEvent">[docs]</a>    <span class="k">def</span> <span class="nf">paintEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a0</span><span class="p">:</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPaintEvent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overridding the default paint event (refresh of the QLabel) to plot the gradient</span>
+<span class="sd">        It is a Qt thing to add any custom display in the paintEvent so that it is done when necessary</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        a0: QtGui.QPaintEvent</span>
+<span class="sd">            Just passed to the parent function</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ColorRangePicker</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">paintEvent</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+        <span class="c1"># Create a painter (object making the drawing)</span>
+        <span class="n">painter</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPainter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># Remove border</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPen</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="c1"># Get the gradient from pyqtgraph colormap</span>
+        <span class="n">gradient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="o">.</span><span class="n">getGradient</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">()))</span>
+        <span class="c1"># TODO: Make the gradient from pure RGB values</span>
+        <span class="c1"># Remove the alpha channel. At this point we are close to making our own gradient from rgb values anyways</span>
+        <span class="c1"># In the objective of abstracting from pyqtgraph we should probably just do it ourselves and store not a</span>
+        <span class="c1"># pyqtgraph colormap object, but RGB values and positions</span>
+        <span class="n">n_gradient</span> <span class="o">=</span> <span class="n">remove_alpha</span><span class="p">(</span><span class="n">gradient</span><span class="p">)</span>
+        <span class="c1"># Set the brush to the gradient</span>
+        <span class="n">brush</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="n">n_gradient</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">brush</span><span class="p">)</span>
+        <span class="c1"># Draw a rectangle the size of the QLabel</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawRect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ShortcutsDialog"><a class="viewcode-back" href="../Controls.html#Controls.ShortcutsDialog">[docs]</a><span class="k">class</span> <span class="nc">ShortcutsDialog</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_title</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;&lt;big&gt;&lt;b&gt;List of shortcuts&lt;/b&gt;&lt;/big&gt;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_shortcuts</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;List of shortcuts&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">(</span><span class="s1">&#39;Monospace&#39;</span><span class="p">)</span>
+        <span class="n">font</span><span class="o">.</span><span class="n">setStyleHint</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="o">.</span><span class="n">TypeWriter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_shortcuts</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;Content/shortcuts.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">st</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;File Not Found</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;Should be shortcuts.txt in Content folder&#39;</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+        <span class="n">s_text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_shortcuts</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">s_text</span><span class="p">)</span>
+
+<span class="c1">#         self.label_shortcuts.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Expanding)</span>
+<span class="c1">#         self.label_title.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="o">.</span><span class="n">addSpacerItem</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="o">.</span><span class="n">addSpacerItem</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addSpacerItem</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_shortcuts</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StaticDataDialog"><a class="viewcode-back" href="../Controls.html#Controls.StaticDataDialog">[docs]</a><span class="k">class</span> <span class="nc">StaticDataDialog</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_title</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;&lt;big&gt;&lt;b&gt;Create/Load Static Datasets&lt;/b&gt;&lt;/big&gt;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">(</span><span class="s1">&#39;Monospace&#39;</span><span class="p">)</span>
+        <span class="n">font</span><span class="o">.</span><span class="n">setStyleHint</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="o">.</span><span class="n">TypeWriter</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addSpacerItem</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addSpacerItem</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Choose Dataset &#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_dataname</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">load_dataname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_button</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Load&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_button</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">load_static</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">load_button</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Choose Connections &#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn_dataname</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conn_dataname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn_button</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Load&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn_button</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">add_connectivity</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conn_button</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Choose Function &#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_formula</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="s1">&#39;np.var&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_formula</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_button</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Compute&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_button</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">compute_static</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_button</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">load_layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addSpacerItem</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conn_layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addSpacerItem</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_layout</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SelectCellDialog"><a class="viewcode-back" href="../Controls.html#Controls.SelectCellDialog">[docs]</a><span class="k">class</span> <span class="nc">SelectCellDialog</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Enter Cell Number &#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cellnumber</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cellnumber</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_button</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Find&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_button</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">show_cell</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find_button</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LogModel"><a class="viewcode-back" href="../Controls.html#Controls.LogModel">[docs]</a><span class="k">class</span> <span class="nc">LogModel</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QAbstractTableModel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="s1">&#39;function&#39;</span><span class="p">,</span> <span class="s1">&#39;line&#39;</span><span class="p">,</span> <span class="s1">&#39;level&#39;</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">),</span>  <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a Abstract Table Model to store the log data</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data: list of dict</span>
+<span class="sd">        columns: tuple of str</span>
+<span class="sd">        parent</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[{</span><span class="n">k</span><span class="p">:</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">}]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_colors</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;CRITICAL&#39;</span><span class="p">:</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">00</span><span class="p">),</span>
+                        <span class="s1">&#39;ERROR&#39;</span><span class="p">:</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+                        <span class="s1">&#39;WARNING&#39;</span><span class="p">:</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">129</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                        <span class="s1">&#39;INFO&#39;</span><span class="p">:</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">171</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                        <span class="s1">&#39;DEBUG&#39;</span><span class="p">:</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">49</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">53</span><span class="p">),</span>
+                        <span class="s1">&#39;NOTSET&#39;</span><span class="p">:</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">49</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">53</span><span class="p">),</span>
+                        <span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)}</span>
+
+<div class="viewcode-block" id="LogModel.rowCount"><a class="viewcode-back" href="../Controls.html#Controls.LogModel.rowCount">[docs]</a>    <span class="k">def</span> <span class="nf">rowCount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LogModel.columnCount"><a class="viewcode-back" href="../Controls.html#Controls.LogModel.columnCount">[docs]</a>    <span class="k">def</span> <span class="nf">columnCount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="LogModel.data"><a class="viewcode-back" href="../Controls.html#Controls.LogModel.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">row</span><span class="p">()][</span><span class="s1">&#39;level&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">index</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QVariant</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ForegroundRole</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colors</span><span class="p">[</span><span class="n">level</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">BackgroundColorRole</span> <span class="ow">and</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colors</span><span class="p">[</span><span class="n">level</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QVariant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">row</span><span class="p">()][</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()]])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QVariant</span><span class="p">()</span></div>
+        <span class="c1"># Return the d_data at index.row() and index.column()</span>
+
+<div class="viewcode-block" id="LogModel.insertRow"><a class="viewcode-back" href="../Controls.html#Controls.LogModel.insertRow">[docs]</a>    <span class="k">def</span> <span class="nf">insertRow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beginRemoveRows</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">endRemoveRows</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beginInsertRows</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endInsertRows</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="LogModel.headerData"><a class="viewcode-back" href="../Controls.html#Controls.LogModel.headerData">[docs]</a>    <span class="k">def</span> <span class="nf">headerData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">orientation</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span> <span class="ow">and</span> <span class="n">role</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QVariant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QVariant</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="QTableLog"><a class="viewcode-back" href="../Controls.html#Controls.QTableLog">[docs]</a><span class="k">class</span> <span class="nc">QTableLog</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">LogModel</span><span class="p">([],</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QTableView</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">setModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># self.widget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)</span>
+
+<div class="viewcode-block" id="QTableLog.emit"><a class="viewcode-back" href="../Controls.html#Controls.QTableLog.emit">[docs]</a>    <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; :: &#39;</span><span class="p">)</span>
+        <span class="n">d_entry</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">entry</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">insertRow</span><span class="p">(</span><span class="n">d_entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">resizeColumnsToContents</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">resizeRowsToContents</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LogWindow"><a class="viewcode-back" href="../Controls.html#Controls.LogWindow">[docs]</a><span class="k">class</span> <span class="nc">LogWindow</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;Fishlog&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMinimumSize</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_handler</span> <span class="o">=</span> <span class="n">QTableLog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_handler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_handler</span><span class="o">.</span><span class="n">widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AssignLoadedData"><a class="viewcode-back" href="../Controls.html#Controls.AssignLoadedData">[docs]</a><span class="k">class</span> <span class="nc">AssignLoadedData</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QInputDialog</span><span class="p">):</span> <span class="c1"># to manually assign data sets to default options</span>
+<div class="viewcode-block" id="AssignLoadedData.assign_data"><a class="viewcode-back" href="../Controls.html#Controls.AssignLoadedData.assign_data">[docs]</a>    <span class="k">def</span> <span class="nf">assign_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loaded_data</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="n">str_question</span> <span class="o">=</span> <span class="s2">&quot;To what default data should </span><span class="si">{}</span><span class="s2"> be assigned? </span><span class="se">\n</span><span class="s2"> Or click Cancel to abort assigning&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loaded_data</span><span class="p">)</span>
+        <span class="n">choice</span><span class="p">,</span> <span class="n">ok_pressed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getItem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Assign data&quot;</span><span class="p">,</span> <span class="n">str_question</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ok_pressed</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">choice</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="CorrelationDialog"><a class="viewcode-back" href="../Controls.html#Controls.CorrelationDialog">[docs]</a><span class="k">class</span> <span class="nc">CorrelationDialog</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class that creates the compute correlation dialog</span>
+<span class="sd">    correlation_single: QComboBox</span>
+<span class="sd">    correlation_multi: QComboBox</span>
+<span class="sd">    press_button: QPushButton that connects to parent.compute_correlation_function</span>
+<span class="sd">        to compute correlation between correlation_single and correlation_multi</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_title</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;&lt;big&gt;&lt;b&gt;Compute Correlation&lt;/b&gt;&lt;/big&gt;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">(</span><span class="s1">&#39;Monospace&#39;</span><span class="p">)</span>
+        <span class="n">font</span><span class="o">.</span><span class="n">setStyleHint</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="o">.</span><span class="n">TypeWriter</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addSpacerItem</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addSpacerItem</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correlation_single_multi_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">press_button_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">correlation_single_multi_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Choose single data&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correlation_single</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">()</span> <span class="c1"># items are added in Fishualizer.py</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correlation_single_multi_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">correlation_single</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">correlation_single_multi_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Choose multi data&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correlation_multi</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">()</span> <span class="c1"># items are added in Fishualizer.py</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correlation_single_multi_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">correlation_multi</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">press_button</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Confirm&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">press_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">compute_correlation_function</span><span class="p">)</span> <span class="c1"># compute correlation if pressed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">press_button_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">press_button</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">correlation_single_multi_layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addSpacerItem</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">press_button_layout</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ClusterColorModel"><a class="viewcode-back" href="../Controls.html#Controls.ClusterColorModel">[docs]</a><span class="k">class</span> <span class="nc">ClusterColorModel</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QAbstractTableModel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;Color&#39;</span><span class="p">,</span> <span class="s1">&#39;Alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;Selected&#39;</span><span class="p">),</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a Abstract Table Model to store the data used to assign user defined colors to clusters</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data: list of dict</span>
+<span class="sd">        columns: tuple of str</span>
+<span class="sd">        parent</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ClusterColorModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_empty_row</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_empty_row</span><span class="p">[</span><span class="s1">&#39;Alpha&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.8</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_empty_row</span><span class="p">[</span><span class="s1">&#39;Selected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_empty_row</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_data</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_empty_row</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span>
+
+<div class="viewcode-block" id="ClusterColorModel.rowCount"><a class="viewcode-back" href="../Controls.html#Controls.ClusterColorModel.rowCount">[docs]</a>    <span class="k">def</span> <span class="nf">rowCount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusterColorModel.columnCount"><a class="viewcode-back" href="../Controls.html#Controls.ClusterColorModel.columnCount">[docs]</a>    <span class="k">def</span> <span class="nf">columnCount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="ClusterColorModel.data"><a class="viewcode-back" href="../Controls.html#Controls.ClusterColorModel.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">index</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QVariant</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QVariant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">row</span><span class="p">()][</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()]])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QVariant</span><span class="p">()</span></div>
+        <span class="c1"># Return the d_data at index.row() and index.column()</span>
+
+<div class="viewcode-block" id="ClusterColorModel.insertRow"><a class="viewcode-back" href="../Controls.html#Controls.ClusterColorModel.insertRow">[docs]</a>    <span class="k">def</span> <span class="nf">insertRow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beginInsertRows</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endInsertRows</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ClusterColorModel.setData"><a class="viewcode-back" href="../Controls.html#Controls.ClusterColorModel.setData">[docs]</a>    <span class="k">def</span> <span class="nf">setData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">index</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">row</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">rowCount</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">())</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="c1"># Add a row if we are editing the last one</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insertRow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_empty_row</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Editing the color, just get the hex value</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">):]</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Invalid color value&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">atof</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_data</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">row</span><span class="p">()][</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()]]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">,</span> <span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ClusterColorModel.headerData"><a class="viewcode-back" href="../Controls.html#Controls.ClusterColorModel.headerData">[docs]</a>    <span class="k">def</span> <span class="nf">headerData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">orientation</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span> <span class="ow">and</span> <span class="n">role</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QVariant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QVariant</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ClusterColorModel.flags"><a class="viewcode-back" href="../Controls.html#Controls.ClusterColorModel.flags">[docs]</a>    <span class="k">def</span> <span class="nf">flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEnabled</span> <span class="o">|</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsSelectable</span> <span class="o">|</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEditable</span></div></div>
+
+
+<div class="viewcode-block" id="ColorPickerCombo"><a class="viewcode-back" href="../Controls.html#Controls.ColorPickerCombo">[docs]</a><span class="k">class</span> <span class="nc">ColorPickerCombo</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subclassing a combobox to make an automatic list of Qt colors with a colored square for each item</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="o">.</span><span class="n">colorNames</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{c}</span><span class="s1"> - {QtGui.QColor(c).name()}&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setItemData</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DecorationRole</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setEditable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TableDelegate"><a class="viewcode-back" href="../Controls.html#Controls.TableDelegate">[docs]</a><span class="k">class</span> <span class="nc">TableDelegate</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QItemDelegate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Take care of creating the widgets used to edit the cluster/color table so that we can fine tune them to our needs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TableDelegate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span> <span class="o">=</span> <span class="n">datasets</span>
+        <span class="c1"># Setting the locale for string to float conversion</span>
+        <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_NUMERIC</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TableDelegate.createEditor"><a class="viewcode-back" href="../Controls.html#Controls.TableDelegate.createEditor">[docs]</a>    <span class="k">def</span> <span class="nf">createEditor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="s1">&#39;QStyleOptionViewItem&#39;</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Making the first column ie the dataset column</span>
+            <span class="c1"># We do it ourselves</span>
+            <span class="n">dset_combo</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+            <span class="n">dset_combo</span><span class="o">.</span><span class="n">addItems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">)</span>
+            <span class="n">editor</span> <span class="o">=</span> <span class="n">dset_combo</span>
+        <span class="k">elif</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Making the second column</span>
+            <span class="c1"># We do it ourselves to make a color picker</span>
+            <span class="n">color_combo</span> <span class="o">=</span> <span class="n">ColorPickerCombo</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+            <span class="n">editor</span> <span class="o">=</span> <span class="n">color_combo</span>
+        <span class="k">elif</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="c1"># Checkbox column is weird</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Alpha value editor</span>
+            <span class="n">alpha_editor</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+            <span class="n">alpha_editor</span><span class="o">.</span><span class="n">setValidator</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QDoubleValidator</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">parent</span><span class="p">))</span>
+            <span class="n">editor</span> <span class="o">=</span> <span class="n">alpha_editor</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">horizontalHeader</span><span class="p">()</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">resizeSection</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">(),</span> <span class="n">editor</span><span class="o">.</span><span class="n">width</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">editor</span></div>
+
+<div class="viewcode-block" id="TableDelegate.paint"><a class="viewcode-back" href="../Controls.html#Controls.TableDelegate.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">:</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPainter</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="s1">&#39;QStyleOptionViewItem&#39;</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">new_rect</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QStyle</span><span class="o">.</span><span class="n">alignedRect</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignCenter</span><span class="p">,</span>
+                                                    <span class="n">QtCore</span><span class="o">.</span><span class="n">QSize</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">decorationSize</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span>
+                                                                 <span class="n">option</span><span class="o">.</span><span class="n">decorationSize</span><span class="o">.</span><span class="n">height</span><span class="p">()),</span>
+                                                    <span class="n">QtCore</span><span class="o">.</span><span class="n">QRect</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">option</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span>
+                                                                 <span class="n">option</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">option</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
+                                                   <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drawCheck</span><span class="p">(</span><span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">new_rect</span><span class="p">,</span>
+                           <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Unchecked</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">data</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Checked</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">paint</span><span class="p">(</span><span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TableDelegate.editorEvent"><a class="viewcode-back" href="../Controls.html#Controls.TableDelegate.editorEvent">[docs]</a>    <span class="k">def</span> <span class="nf">editorEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the data in the model and the state of the checkbox</span>
+<span class="sd">        if the user presses the left mousebutton and this cell is editable. Otherwise do nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QEvent</span><span class="o">.</span><span class="n">MouseButtonRelease</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">LeftButton</span><span class="p">:</span>
+                <span class="c1"># Change the checkbox-state</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">data</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">EditRole</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">TableDelegate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">editorEvent</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ClusterDialog"><a class="viewcode-back" href="../Controls.html#Controls.ClusterDialog">[docs]</a><span class="k">class</span> <span class="nc">ClusterDialog</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Window showed to select which clusters to display and in which color</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span>  <span class="n">datasets</span><span class="o">=</span><span class="p">(),</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">)</span>
+        <span class="c1"># self.setMinimumSize(600, 100)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="p">)</span>
+        <span class="c1"># Table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cluster_model</span> <span class="o">=</span> <span class="n">ClusterColorModel</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cluster_table</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QTableView</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cluster_table</span><span class="o">.</span><span class="n">setModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cluster_table</span><span class="o">.</span><span class="n">setItemDelegate</span><span class="p">(</span><span class="n">TableDelegate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_table</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="n">datasets</span><span class="p">))</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_table</span><span class="o">.</span><span class="n">horizontalHeader</span><span class="p">()</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">setSectionResizeMode</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHeaderView</span><span class="o">.</span><span class="n">Stretch</span><span class="p">)</span>
+        <span class="c1"># Buttons</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ok_button</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Apply&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ok_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">return_colors</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Cancel&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quit</span><span class="p">)</span>
+        <span class="c1"># Layouts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="o">.</span><span class="n">addSpacerItem</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ok_button</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_table</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h_layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">WA_DeleteOnClose</span><span class="p">)</span>
+        <span class="c1"># Return value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ClusterDialog.return_colors"><a class="viewcode-back" href="../Controls.html#Controls.ClusterDialog.return_colors">[docs]</a>    <span class="k">def</span> <span class="nf">return_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">table_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_model</span><span class="o">.</span><span class="n">d_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors</span> <span class="o">=</span> <span class="p">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Dataset&#39;</span><span class="p">]:</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Dataset&#39;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Color&#39;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Alpha&#39;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Selected&#39;</span><span class="p">]]</span>
+                       <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table_data</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Dataset&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ClusterDialog.quit"><a class="viewcode-back" href="../Controls.html#Controls.ClusterDialog.quit">[docs]</a>    <span class="k">def</span> <span class="nf">quit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reject</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="OpenDataDialog"><a class="viewcode-back" href="../Controls.html#Controls.OpenDataDialog">[docs]</a><span class="k">class</span> <span class="nc">OpenDataDialog</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignorelags_cbx</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s1">&#39;Ignore time lags between Z-layers&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forceinterp_cbx</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s1">&#39;Force time interpolation of Z-layers (even if time-aligned data is present)&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignoreunknowndata_cbx</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s1">&#39;Ignore data sets that are not recognised automatically&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataformat_cb</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataformat_cb</span><span class="o">.</span><span class="n">addItems</span><span class="p">([</span><span class="s1">&#39;timesXcells&#39;</span><span class="p">,</span><span class="s1">&#39;cellsXtimes&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="OpenDataDialog.getOpenFileName"><a class="viewcode-back" href="../Controls.html#Controls.OpenDataDialog.getOpenFileName">[docs]</a>    <span class="k">def</span> <span class="nf">getOpenFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">caption</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">initialFilter</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Open a window to select a data file and set a few options.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent:</span>
+<span class="sd">        caption: str</span>
+<span class="sd">            Window caption</span>
+<span class="sd">        directory: str</span>
+<span class="sd">            Current directory</span>
+<span class="sd">        filter: str</span>
+<span class="sd">            Valid file types</span>
+<span class="sd">        initialFilter: str</span>
+<span class="sd">        options:</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        filepath: str</span>
+<span class="sd">            Path to data. &#39;&#39; if cancel</span>
+<span class="sd">        filter: str</span>
+<span class="sd">            Valid file extension</span>
+<span class="sd">        ignorelags: bool</span>
+<span class="sd">            Should we ignore the lags when loading data</span>
+<span class="sd">        foreceinterp: bool</span>
+<span class="sd">            Should the interpolation be forced, ie done even if already stored in the data file</span>
+<span class="sd">        dataformat: str</span>
+<span class="sd">            Orientation of the data</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">caption</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setDirectory</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setNameFilter</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFileMode</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">ExistingFile</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setAcceptMode</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">AcceptOpen</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">initialFilter</span><span class="o">!=</span><span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selectNameFilter</span><span class="p">(</span><span class="n">initialFilter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setOptions</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setOption</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">DontUseNativeDialog</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Options&#39;</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ignorelags_cbx</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forceinterp_cbx</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ignoreunknowndata_cbx</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Data orientation&#39;</span><span class="p">),</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataformat_cb</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec_</span><span class="p">():</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selectedFiles</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">filter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignorelags_cbx</span><span class="o">.</span><span class="n">isChecked</span><span class="p">(),</span> \
+                   <span class="bp">self</span><span class="o">.</span><span class="n">forceinterp_cbx</span><span class="o">.</span><span class="n">isChecked</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignoreunknowndata_cbx</span><span class="o">.</span><span class="n">isChecked</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataformat_cb</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">filter</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;cellsXtimes&#39;</span></div></div>
+
+
+<span class="c1"># Extended combobox with search capabilities</span>
+<span class="c1"># From: https://stackoverflow.com/questions/4827207/how-do-i-filter-the-pyqt-qcombobox-items-based-on-the-text-input</span>
+<div class="viewcode-block" id="ExtendedComboBox"><a class="viewcode-back" href="../Controls.html#Controls.ExtendedComboBox">[docs]</a><span class="k">class</span> <span class="nc">ExtendedComboBox</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ExtendedComboBox</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFocusPolicy</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">StrongFocus</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setEditable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># add a filter model to filter matching items</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pFilterModel</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QSortFilterProxyModel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pFilterModel</span><span class="o">.</span><span class="n">setFilterCaseSensitivity</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">CaseInsensitive</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pFilterModel</span><span class="o">.</span><span class="n">setSourceModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">())</span>
+
+        <span class="c1"># add a completer, which uses the filter model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCompleter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pFilterModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># always show all (filtered) completions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">setCompletionMode</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCompleter</span><span class="o">.</span><span class="n">UnfilteredPopupCompletion</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCompleter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="p">)</span>
+
+        <span class="c1"># connect signals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">()</span><span class="o">.</span><span class="n">textEdited</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pFilterModel</span><span class="o">.</span><span class="n">setFilterFixedString</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">activated</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_completer_activated</span><span class="p">)</span>
+
+    <span class="c1"># on selection of an item from the completer, select the corresponding item from combobox</span>
+<div class="viewcode-block" id="ExtendedComboBox.on_completer_activated"><a class="viewcode-back" href="../Controls.html#Controls.ExtendedComboBox.on_completer_activated">[docs]</a>    <span class="k">def</span> <span class="nf">on_completer_activated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">activated</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itemText</span><span class="p">(</span><span class="n">index</span><span class="p">))</span></div>
+
+    <span class="c1"># on model change, update the models of the filter and completer as well</span>
+<div class="viewcode-block" id="ExtendedComboBox.setModel"><a class="viewcode-back" href="../Controls.html#Controls.ExtendedComboBox.setModel">[docs]</a>    <span class="k">def</span> <span class="nf">setModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ExtendedComboBox</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">setModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pFilterModel</span><span class="o">.</span><span class="n">setSourceModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">setModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pFilterModel</span><span class="p">)</span></div>
+
+    <span class="c1"># on model column change, update the model column of the filter and completer as well</span>
+<div class="viewcode-block" id="ExtendedComboBox.setModelColumn"><a class="viewcode-back" href="../Controls.html#Controls.ExtendedComboBox.setModelColumn">[docs]</a>    <span class="k">def</span> <span class="nf">setModelColumn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">setCompletionColumn</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pFilterModel</span><span class="o">.</span><span class="n">setFilterKeyColumn</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ExtendedComboBox</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">setModelColumn</span><span class="p">(</span><span class="n">column</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Rémi Proville, Thijs van der Plas, Bernhard Englitz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

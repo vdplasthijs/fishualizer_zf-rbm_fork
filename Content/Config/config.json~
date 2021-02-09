@@ -1,0 +1,45 @@
+{
+  "remi":{
+    "paths": {
+      "data_path": "~/Programming/fishualizer/Data/",
+      "static_path": "~/Programming/fishualizer/Data/"
+    }
+  },
+   "rproville":{
+    "paths": {
+      "data_path": "~/Programming/fishualizer/Data/",
+      "static_path": "~/Programming/fishualizer/Data/"
+    }
+  },
+   "Thijs":{
+    "paths": {
+      "data_path": "C:/Users/Thijs/Google Drive/M_Internship/Data/spontaneous",
+      "static_path": "C:/Users/Thijs/repos/fishualizer/Data/Data20140827_spont/StaticSets"
+   }
+ },
+ "merijn":{
+   "paths": {
+     "data_path": "/home/merijn/Documents/school/Internship/",
+     "static_path": "~"
+   }
+ },
+  "ljp":{
+   "paths": {
+     "data_path": "~/Science/Data Thijs/LJP/20180131_Thermotaxis/RUn03",
+     "static_path": "~/Science/Data Thijs/LJP/20180131_Thermotaxis/RUn03"
+   }
+ },
+  "Thijs van der Plas":{
+   "paths": {
+     "data_path": "~/home/thijs/Desktop/RBM/For_Thijs/rhomb1_improvedtraining",
+     "static_path": "~/home/thijs/"
+   }
+ },
+   "default":{
+    "paths": {
+      "data_path": "~",
+      "static_path": "~"
+    },
+    "loadram": false
+  }
+}

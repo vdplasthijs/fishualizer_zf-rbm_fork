@@ -1,0 +1,842 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>utilities &#8212; Fishualizer 3 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for utilities</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">getpass</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span>
+<span class="kn">import</span> <span class="nn">scipy.interpolate</span> <span class="k">as</span> <span class="nn">ip</span>
+<span class="kn">from</span> <span class="nn">Controls</span> <span class="k">import</span> <span class="n">AssignLoadedData</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;Fishlog&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="open_h5_data"><a class="viewcode-back" href="../utilities.html#utilities.open_h5_data">[docs]</a><span class="k">def</span> <span class="nf">open_h5_data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">dataformat</span><span class="o">=</span><span class="s1">&#39;cellsXtimes&#39;</span><span class="p">,</span> <span class="n">ignorelags</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">forceinterpolation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignoreunknowndata</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Soft-load data names from hdf5 file. Guess by name, toggle between coords and</span>
+<span class="sd">    ref_coords, load labels from hdf5 file, if not load from filepath (in load_data())</span>
+<span class="sd">    in Fishualizer.py.</span>
+
+<span class="sd">    TODO:</span>
+<span class="sd">    - if not guessed by name, guess by shape or assign Manually</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath: str or Path</span>
+<span class="sd">    dataformat: &#39;cellsXtimes&#39; or &#39;timesXcells&#39; (default &#39;cellsXtimes&#39;)</span>
+<span class="sd">        data orientation</span>
+<span class="sd">    ignorelags: bool (default False)</span>
+<span class="sd">        whether to ignore time lags between z layers</span>
+<span class="sd">    forceinterpolation: bool (default False)</span>
+<span class="sd">        whether to force time interpolation (between layers) even if df_aligned is provided in the h5 file</span>
+<span class="sd">    ignoreunknowndata: bool (default False)</span>
+<span class="sd">        whether to ignore unknown data, meaning data that is not recognised by the</span>
+<span class="sd">        default names dictionary. If true, the user is prompted to assign it to a</span>
+<span class="sd">        default data set (or cancel), if false this is not asked.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    data: dict</span>
+<span class="sd">          Dictionary containing the loaded data only, possibilities:</span>
+<span class="sd">              df: Calcium signal, default shape is Neurons X Times (note: inverted in Matlab H5 saving)</span>
+<span class="sd">              coords: Position of cells in own space</span>
+<span class="sd">              ref_coords: Position of cells in reference space</span>
+<span class="sd">              behavior: behavioral data</span>
+<span class="sd">              stimulus: stimulus data</span>
+<span class="sd">              times: Time points</span>
+<span class="sd">              spikes: spike data</span>
+<span class="sd">              labels: labels of anatomical alignment with ZBrainAtlas</span>
+<span class="sd">              not_neuropil: boolean values, True=not neuropil, False=neuropil</span>
+<span class="sd">    h5_file: File handle</span>
+<span class="sd">        Handle on the hdf5 file with the data</span>
+<span class="sd">    loaded_data_names: dict</span>
+<span class="sd">        Dictionary containing the mappings between default names (as keys) and</span>
+<span class="sd">        hdf5 file names (as values)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Opening file </span><span class="si">{filepath}</span><span class="s1"> with following options: dataformat: </span><span class="si">{dataformat}</span><span class="s1">, &#39;</span>
+                 <span class="n">f</span><span class="s1">&#39;ignorelags: </span><span class="si">{ignorelags}</span><span class="s1">, forceinterpolation: </span><span class="si">{forceinterpolation}</span><span class="s1">, ignoreunknowndata: </span><span class="si">{ignoreunknowndata}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">h5_file</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span>
+    <span class="n">data_groups_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">gr</span> <span class="k">for</span> <span class="n">gr</span> <span class="ow">in</span> <span class="n">h5_file</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>  <span class="c1"># different groups in hdf5 file</span>
+
+    <span class="n">default_names</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;df&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;df/f&#39;</span><span class="p">,</span> <span class="s1">&#39;dff&#39;</span><span class="p">,</span> <span class="s1">&#39;calcium&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">,</span> <span class="s1">&#39;calcium_data&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;layerlags&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;layerlags&#39;</span><span class="p">,</span> <span class="s1">&#39;timedelays&#39;</span><span class="p">,</span> <span class="s1">&#39;delays&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;df_aligned&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;df_aligned&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;coords&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;coordinates&#39;</span><span class="p">,</span> <span class="s1">&#39;coords&#39;</span><span class="p">,</span> <span class="s1">&#39;coordinates_raw&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;ref_coords&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;refcoords&#39;</span><span class="p">,</span> <span class="s1">&#39;ref_coords&#39;</span><span class="p">,</span> <span class="s1">&#39;refcoordinates&#39;</span><span class="p">,</span>
+                                    <span class="s1">&#39;ref_coordinates&#39;</span><span class="p">,</span> <span class="s1">&#39;reference_coordinates&#39;</span><span class="p">,</span>
+                                    <span class="s1">&#39;coordinates_registered&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;zbrain_coords&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;zbraincoords, zbrain_coords, zbrain_coordinates&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;zbraincoordinates&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;behavior&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">,</span> <span class="s1">&#39;behav&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;stimulus&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;stimulus&#39;</span><span class="p">,</span> <span class="s1">&#39;stim&#39;</span><span class="p">,</span> <span class="s1">&#39;stimuli&#39;</span><span class="p">,</span> <span class="s1">&#39;stimulus_trace&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;times&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;time_vector&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;time_delay_vector&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;timedelays&#39;</span><span class="p">,</span> <span class="s1">&#39;delayvector&#39;</span><span class="p">,</span> <span class="s1">&#39;delay_vector&#39;</span><span class="p">,</span> <span class="s1">&#39;time_delay_vector&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;spikes&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;spike&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="s1">&#39;spike_data&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">,</span> <span class="s1">&#39;region_labels&#39;</span><span class="p">,</span> <span class="s1">&#39;zbrainatlas_labels&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;not_neuropil&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;not_neuropil&#39;</span><span class="p">,</span> <span class="s1">&#39;no_neuropil&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;phase_map&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;phasemapneuron&#39;</span><span class="p">,</span> <span class="s1">&#39;phase_map&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;neuropil&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;neuropil&#39;</span><span class="p">,</span> <span class="s1">&#39;neuropil_neurons&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;sampling_rate&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;sr&#39;</span><span class="p">]}</span>  <span class="c1"># default names for educated guess, lowercase!</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">loaded_data_names</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">dataformat</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>  <span class="c1"># if dataformat is given in the command line, it is a list containnig 1 string (e.g. [&#39;timesXcells&#39;])</span>
+        <span class="n">dataformat</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataformat</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Temporally align the data across layers using the relative lags</span>
+    <span class="k">for</span> <span class="n">group_name</span> <span class="ow">in</span> <span class="n">data_groups_names</span><span class="p">:</span>
+        <span class="n">group_name_mappings</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># get mappings from default name (key) to hdf5 data name (value)</span>
+        <span class="n">c_group</span> <span class="o">=</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span>
+        <span class="n">data_sets_names_c</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">c_group</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="n">data_sets_names_c</span><span class="p">:</span>  <span class="c1"># data set name in hdf5 file</span>
+            <span class="k">for</span> <span class="n">dict_name</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="n">default_names</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># try default names</span>
+                <span class="k">if</span> <span class="n">input_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">default</span><span class="p">:</span>  <span class="c1"># because default names are all lower()</span>
+                    <span class="n">group_name_mappings</span><span class="p">[</span><span class="n">dict_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_name</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">ignorelags</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;df_aligned&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group_name_mappings</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="ow">or</span> <span class="n">forceinterpolation</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;layerlags&quot;</span> <span class="ow">in</span> <span class="n">group_name_mappings</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">or</span> <span class="n">forceinterpolation</span><span class="p">:</span>
+                <span class="c1"># interpolate the data</span>
+                <span class="n">layer_lags_correction</span><span class="p">(</span><span class="n">c_group</span><span class="p">,</span> <span class="n">group_name_mappings</span><span class="p">,</span> <span class="n">dataformat</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;No lags across layers provided in HDF5 file (</span><span class="si">{filepath}</span><span class="s2">), using uncorrected data, &#39;ignorelags&#39; set to True.&quot;</span><span class="p">)</span>
+                <span class="n">ignorelags</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+    <span class="k">def</span> <span class="nf">load_data_from_group_by_name</span><span class="p">(</span><span class="n">data_sets_names_f</span><span class="p">,</span> <span class="n">group_index</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="n">data_sets_names_f</span><span class="p">:</span>  <span class="c1"># data set name in hdf5 file</span>
+            <span class="k">for</span> <span class="n">dict_name</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="n">default_names</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># try default names</span>
+                <span class="k">if</span> <span class="n">input_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">default</span><span class="p">:</span>  <span class="c1"># because default names are all lower()</span>
+                    <span class="k">if</span> <span class="n">dict_name</span> <span class="o">==</span> <span class="s1">&#39;df&#39;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">ignorelags</span><span class="p">:</span>
+                            <span class="n">data_name_used</span> <span class="o">=</span> <span class="n">input_name</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">data_name_used</span> <span class="o">=</span> <span class="s1">&#39;df_aligned&#39;</span>
+                        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">data_groups_names</span><span class="p">[</span><span class="n">group_index</span><span class="p">]][</span><span class="n">data_name_used</span><span class="p">]</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{data_name_used}</span><span class="s1"> was loaded.&#39;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{data_name_used}</span><span class="s1"> was loaded.&#39;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">dataformat</span> <span class="o">==</span> <span class="s1">&#39;timesXcells&#39;</span> <span class="ow">and</span> <span class="n">data_name_used</span> <span class="o">!=</span> <span class="s1">&#39;df_aligned&#39;</span><span class="p">:</span>
+                            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">])</span>  <span class="c1"># transposing loads data in full into memory (i.e. no memory mapping)</span>
+
+                    <span class="k">else</span><span class="p">:</span> <span class="c1"># other arguments are all transposed by default</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39; now loading </span><span class="si">{input_name}</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="n">data</span><span class="p">[</span><span class="n">dict_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">h5_file</span><span class="p">[</span><span class="n">data_groups_names</span><span class="p">[</span><span class="n">group_index</span><span class="p">]][</span><span class="n">input_name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39; </span><span class="si">{input_name}</span><span class="s1"> loaded&#39;</span><span class="p">)</span>
+                    <span class="n">loaded_data_names</span><span class="p">[</span><span class="n">dict_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_name</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">loaded_data_names</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_groups_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># one group in hdf5</span>
+        <span class="n">data_group</span> <span class="o">=</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">data_groups_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">data_sets_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">data_group</span><span class="p">]</span>  <span class="c1"># all data sets in group</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">loaded_data_names</span> <span class="o">=</span> <span class="n">load_data_from_group_by_name</span><span class="p">(</span><span class="n">data_sets_names</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># multiple groups</span>
+        <span class="n">data_sets_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">iLoop</span><span class="p">,</span> <span class="n">group_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_groups_names</span><span class="p">):</span>  <span class="c1"># loop through groups</span>
+            <span class="n">data_group</span> <span class="o">=</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span>
+            <span class="n">temp_data_sets_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">data_group</span><span class="p">]</span>  <span class="c1"># all data sets in group</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">loaded_data_names</span> <span class="o">=</span> <span class="n">load_data_from_group_by_name</span><span class="p">(</span><span class="n">data_sets_names_f</span><span class="o">=</span><span class="n">temp_data_sets_names</span><span class="p">,</span>
+                                                                   <span class="n">group_index</span><span class="o">=</span><span class="n">iLoop</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">tdsn</span> <span class="ow">in</span> <span class="n">temp_data_sets_names</span><span class="p">:</span>
+                <span class="n">data_sets_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdsn</span><span class="p">)</span>
+
+    <span class="n">used_default_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">default_n</span> <span class="k">for</span> <span class="n">default_n</span> <span class="ow">in</span> <span class="n">loaded_data_names</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+    <span class="k">for</span> <span class="n">dn</span> <span class="ow">in</span> <span class="n">data_sets_names</span><span class="p">:</span>  <span class="c1"># add all non-assigned data sets by hand</span>
+        <span class="k">if</span> <span class="n">dn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">loaded_data_names</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># if data is unknown</span>
+            <span class="k">if</span> <span class="n">ignoreunknowndata</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># if ignore unknown data is False, ask to manually assign</span>
+                <span class="n">unused_default_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">default_names</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="n">used_default_names</span>  <span class="c1"># left over default names</span>
+                <span class="n">prompt_window</span> <span class="o">=</span> <span class="n">AssignLoadedData</span><span class="p">()</span>  <span class="c1"># QtInputDialog to ask to what default_name to couple to</span>
+                <span class="n">ch</span> <span class="o">=</span> <span class="n">prompt_window</span><span class="o">.</span><span class="n">assign_data</span><span class="p">(</span><span class="n">loaded_data</span><span class="o">=</span><span class="n">dn</span><span class="p">,</span>
+                                               <span class="n">options</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">unused_default_names</span><span class="p">))</span>  <span class="c1"># get the chosen default name</span>
+                <span class="k">if</span> <span class="n">ch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># nothing chosen</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{dn}</span><span class="s1"> not assigned&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">unused_default_names</span><span class="p">:</span>  <span class="c1"># sanity check</span>
+                    <span class="k">for</span> <span class="n">group_name</span> <span class="ow">in</span> <span class="n">data_groups_names</span><span class="p">:</span>  <span class="c1"># loop through groups (also works for 1 group)</span>
+                        <span class="n">data_group</span> <span class="o">=</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">dn</span> <span class="ow">in</span> <span class="n">data_group</span><span class="p">:</span>  <span class="c1"># if correct group</span>
+                            <span class="n">data</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">data_group</span><span class="p">[</span><span class="n">dn</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>  <span class="c1"># load data</span>
+                            <span class="n">loaded_data_names</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">dn</span>  <span class="c1"># save name</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{dn}</span><span class="s1"> assigned to </span><span class="si">{ch}</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">used_default_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>  <span class="c1"># add to set</span>
+                            <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">ignoreunknowndata</span><span class="p">:</span> <span class="c1"># if ignore is True, just return log debug</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{dn}</span><span class="s1"> not assigned&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;df&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>  <span class="c1"># necessary to plot</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;No df/f values loaded from data file </span><span class="si">{filepath}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># use shape of df to transpose other data sets if needed</span>
+        <span class="k">if</span> <span class="s1">&#39;behavior&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># in case &#39;behavior&#39; is squeezed 1D, not needed.</span>
+                <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>  <span class="c1"># numpy transpose</span>
+
+        <span class="k">if</span> <span class="s1">&#39;stimulus&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;stimulus&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;stimulus&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;stimulus&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;stimulus&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="s1">&#39;coords&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="s1">&#39;ref_coords&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>  <span class="c1"># necesassary to plot</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;No coordinates loaded from data file </span><span class="si">{filepath}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;times&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>  <span class="c1"># necessary to plot, create np.arange(T) otherwise</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">])[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>  <span class="c1"># it must be 2D for somewhere in Fishualizer code</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;time vector created&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">dn</span> <span class="ow">in</span> <span class="n">default_names</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">dn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>  <span class="c1"># default data set not loaded</span>
+            <span class="c1"># logger.warning(f&#39;{dn} data not loaded from \n{filepath}&#39;)</span>
+            <span class="k">pass</span>
+
+    <span class="k">if</span> <span class="s1">&#39;labels&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        HDF5 can not directly store sparse matrices, so it is imported as full</span>
+<span class="sd">        matrix. I change it now to scipy.sparse so it is compatible with Fishualizer code and for</span>
+<span class="sd">        memory usage. Maybe change in the future?</span>
+<span class="sd">        Also this could maybe be merged with the &quot;if &#39;labels&#39; in data&quot; in Fishualizer.py load_data()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="s1">&#39;neuropil&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="s1">&#39;not_neuropil&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>  <span class="c1"># not_neuropil is needed for Fishualizer.py</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;not_neuropil&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;neuropil&#39;</span><span class="p">])</span>
+        <span class="k">del</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;neuropil&#39;</span><span class="p">]</span>  <span class="c1"># because only not_neuropil is needed (and they contain the same information)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;not_neuropil&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;not_neuropil&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;not_neuropil&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;bool&#39;</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;not_neuropil&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;not_neuropil&#39;</span><span class="p">])</span>  <span class="c1"># because it has to be 2D to be loaded by transpose (1,0)</span>
+    <span class="c1"># loaded_data_names is returned for coordinate choice when multiple coordinate sets are present (in Fishualizer.py)</span>
+    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">h5_file</span><span class="p">,</span> <span class="n">loaded_data_names</span></div>
+
+
+<div class="viewcode-block" id="layer_lags_correction"><a class="viewcode-back" href="../utilities.html#utilities.layer_lags_correction">[docs]</a><span class="k">def</span> <span class="nf">layer_lags_correction</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">name_mappings</span><span class="p">,</span> <span class="n">dataformat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolation is performed over chunks of the data.</span>
+<span class="sd">    The type of interpolation defines th</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    in group:   times</span>
+<span class="sd">                data</span>
+<span class="sd">                lags</span>
+
+<span class="sd">        name_mappings: dict</span>
+<span class="sd">        dataformat</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    data_corrected</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Interpolating data in time to correct the time lags between the layers&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">name_mappings</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]]</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="n">name_mappings</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]])</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="n">name_mappings</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">]])</span>
+    <span class="n">lags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="n">name_mappings</span><span class="p">[</span><span class="s1">&#39;layerlags&#39;</span><span class="p">]])</span>
+    <span class="c1"># lags = coords[:,2]/(np.max(coords[:,2])+1)*(times[1]-times[0])</span>
+    <span class="n">n_cells</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">shape_int</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span> <span class="k">if</span> <span class="n">dataformat</span> <span class="o">==</span> <span class="s1">&#39;cellsXtimes&#39;</span> <span class="k">else</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">data_corrected</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;df_aligned&#39;</span><span class="p">,</span> <span class="n">shape_int</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>  <span class="c1"># to avoid writing float64s</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+        <span class="n">data_corrected</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;df_aligned&#39;</span><span class="p">]</span>
+
+    <span class="n">n_chunks</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">interpolation_kind</span> <span class="o">=</span> <span class="s1">&#39;cubic&#39;</span>
+    <span class="n">n_overlap</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="n">chunk_ix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">),</span> <span class="n">n_chunks</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
+    <span class="n">dtime</span> <span class="o">=</span> <span class="mf">0.25</span><span class="o">*</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">nsteps</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">localtimes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">dtime</span><span class="p">,</span><span class="n">dtime</span><span class="p">,</span><span class="n">nsteps</span><span class="p">)</span>
+    <span class="n">allintertimes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">localtimes</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)):</span>
+        <span class="n">allintertimes</span><span class="p">[</span><span class="n">it</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">it</span><span class="p">]</span> <span class="o">+</span> <span class="n">localtimes</span>
+
+    <span class="k">for</span> <span class="n">ichunk</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_chunks</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Chunk #</span><span class="si">{ichunk}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Chunk #</span><span class="si">{ichunk}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># Define indices to be worked on in this chunk</span>
+        <span class="n">cchunk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">chunk_ix</span><span class="p">[</span><span class="n">ichunk</span><span class="p">],</span> <span class="n">chunk_ix</span><span class="p">[</span><span class="n">ichunk</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">cchunk_leadin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">chunk_ix</span><span class="p">[</span><span class="n">ichunk</span><span class="p">]</span> <span class="o">-</span> <span class="n">n_overlap</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">chunk_ix</span><span class="p">[</span><span class="n">ichunk</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">dataformat</span> <span class="o">==</span> <span class="s1">&#39;cellsXtimes&#39;</span><span class="p">:</span>
+            <span class="n">cdata</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span><span class="n">cchunk_leadin</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">cchunk_leadin</span><span class="p">,:])</span>
+
+        <span class="n">cdata_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_cells</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">cchunk</span><span class="p">)))</span>
+        <span class="n">cintertimes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">allintertimes</span><span class="p">[</span><span class="n">cchunk</span><span class="p">,:],</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Separate the cases for the different chunks to avoid</span>
+        <span class="n">nan_ix_start</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">nan_ix_end</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">ichunk</span> <span class="o">==</span> <span class="n">n_chunks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># special treatment of the last time-point</span>
+            <span class="n">nan_ix_end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">nsteps</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)))</span>
+            <span class="n">nan_ix_end</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">cintertimes</span> <span class="o">=</span> <span class="n">cintertimes</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">int</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">nsteps</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))]</span>
+        <span class="k">if</span> <span class="n">ichunk</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># special treatment of the first time-point</span>
+            <span class="n">nan_ix_start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">nsteps</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)))</span>
+            <span class="n">nan_ix_start</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">cintertimes</span> <span class="o">=</span> <span class="n">cintertimes</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">nsteps</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)):]</span>
+
+        <span class="k">for</span> <span class="n">ineuron</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cells</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ineuron</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">ineuron</span><span class="p">,</span><span class="mi">10000</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;  Neuron #</span><span class="si">{ineuron}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;  Neuron #</span><span class="si">{ineuron}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">cchunk_leadin</span><span class="p">]</span> <span class="o">+</span> <span class="n">lags</span><span class="p">[</span><span class="n">ineuron</span><span class="p">]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">cdata</span><span class="p">[</span><span class="n">ineuron</span><span class="p">,</span> <span class="p">:])</span>
+
+            <span class="c1"># PERFORM INTERPOLATION</span>
+            <span class="n">cinterpolator</span> <span class="o">=</span> <span class="n">ip</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span> <span class="n">assume_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">kind</span><span class="o">=</span><span class="n">interpolation_kind</span><span class="p">)</span>
+            <span class="n">interp_tmp</span>  <span class="o">=</span> <span class="n">cinterpolator</span><span class="p">(</span><span class="n">cintertimes</span><span class="p">)</span>
+
+            <span class="c1"># Account for ends of the range</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nan_ix_start</span><span class="p">):</span>
+                <span class="n">interp_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">nan_ix_start</span><span class="p">,</span><span class="n">interp_tmp</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nan_ix_end</span><span class="p">):</span>
+                <span class="n">interp_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">interp_tmp</span><span class="p">,</span><span class="n">nan_ix_end</span><span class="p">))</span>
+
+            <span class="n">cdata_interp</span><span class="p">[</span><span class="n">ineuron</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">interp_tmp</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cchunk</span><span class="p">),</span><span class="n">nsteps</span><span class="p">))),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">data_corrected</span><span class="p">[:,</span><span class="n">cchunk</span><span class="p">]</span> <span class="o">=</span> <span class="n">cdata_interp</span></div>
+
+<div class="viewcode-block" id="load_config"><a class="viewcode-back" href="../utilities.html#utilities.load_config">[docs]</a><span class="k">def</span> <span class="nf">load_config</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the JSON configuration file and return parameters corresponding to current user</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    user_params: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;config.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+        <span class="n">all_params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">user_params</span> <span class="o">=</span> <span class="n">all_params</span><span class="p">[</span><span class="n">username</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">user_params</span> <span class="o">=</span> <span class="n">all_params</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span>
+    <span class="n">user_params</span><span class="p">[</span><span class="s1">&#39;paths&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">user_params</span><span class="p">[</span><span class="s1">&#39;paths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">return</span> <span class="n">user_params</span></div>
+
+
+<div class="viewcode-block" id="KeyDefaultDict"><a class="viewcode-back" href="../utilities.html#utilities.KeyDefaultDict">[docs]</a><span class="k">class</span> <span class="nc">KeyDefaultDict</span><span class="p">(</span><span class="n">defaultdict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__missing__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="Zecording"><a class="viewcode-back" href="../utilities.html#utilities.Zecording">[docs]</a><span class="k">class</span> <span class="nc">Zecording</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{path}</span><span class="s1"> does not exist&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_name_mappings</span> <span class="o">=</span> <span class="n">open_h5_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sel_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_avail_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_single_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_multi_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sr</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># sampling rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_scale_factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>  <span class="c1"># default to (effectively) no scaling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span> <span class="o">=</span> <span class="n">KeyDefaultDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">,</span>
+                                       <span class="p">{</span><span class="s1">&#39;df&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spikes</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">,</span>
+                                        <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">})</span>
+        <span class="c1"># TODO: Keep track of the static datasets?</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Zecording object created&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">t</span>
+
+    <span class="c1"># The class can also be used to provide aliases</span>
+    <span class="n">calcium</span> <span class="o">=</span> <span class="n">df</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">time</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">time</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_times</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sampling_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># we can additionaly load from hdf5 (as attribute?)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># if not defined, guess</span>
+            <span class="c1"># the advantage of doing this here instead of in __init__() is that now you can always reset SR to None</span>
+            <span class="c1"># (in the console)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sr</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">])))</span>  <span class="c1"># guess sr</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sr</span>
+
+    <span class="nd">@sampling_rate</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">sampling_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sr</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_name_mappings</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ref_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;ref_coords&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{self}</span><span class="s1"> does not contain reference coordinates&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">zbrain_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;zbrain_coords&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{self}</span><span class="s1"> does not contain ZBrain coordinates&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">behavior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{self}</span><span class="s1"> does not contain behavioral data&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">spikes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;spikes&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{self}</span><span class="s1"> does not contain spiking data&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stimulus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;stimulus&#39;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{self}</span><span class="s1"> does not contain stimulus data&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">not_neuropil</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;not_neuropil&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{self}</span><span class="s1"> does not contain neuropil information&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{self}</span><span class="s1"> does not contain ZBrainAtlas labels&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@labels</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># This is implemented just to make the &#39;old way&#39; of loading labels work</span>
+        <span class="c1"># It might be removed once the large SampleData file is converted</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phase_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;phase_map&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">layerlags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;layerlags&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@output</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># Seems to be required in one place in the Fishualizer (when input and output are the same)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coordinate_scale_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_scale_factor</span>
+
+    <span class="nd">@coordinate_scale_factor</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">coordinate_scale_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_factors</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x_scalef</span><span class="p">,</span> <span class="n">y_scalef</span><span class="p">,</span> <span class="n">z_scalef</span> <span class="o">=</span>  <span class="n">scaling_factors</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Pass an iterable with three items (xscale, yscale, zscale)&#39;</span><span class="p">)</span>
+            <span class="n">x_scalef</span><span class="p">,</span> <span class="n">y_scalef</span><span class="p">,</span> <span class="n">z_scalef</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># use default scaling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_scale_factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x_scalef</span><span class="p">,</span> <span class="n">y_scalef</span><span class="p">,</span> <span class="n">z_scalef</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sel_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">raw_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sel_coords</span>  <span class="c1"># current selection</span>
+        <span class="n">scaling</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate_scale_factor</span>  <span class="c1"># current scaling</span>
+        <span class="n">scaled_coords</span> <span class="o">=</span> <span class="n">scaling</span> <span class="o">*</span> <span class="n">raw_coords</span>  <span class="c1"># scale coordinates</span>
+        <span class="k">return</span> <span class="n">scaled_coords</span>
+
+    <span class="nd">@sel_frame</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">sel_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ability to select a property of Zecording object (eg for plotting purposes)</span>
+<span class="sd">        One should prefer to set it either to self.coords, or self.ref_coords or any properties like this.</span>
+<span class="sd">        It could also be set to any other function (even outside of this class) as long as it</span>
+<span class="sd">        returns data in the proper format</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: function</span>
+<span class="sd">            Method to call to get neuron coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sel_coords</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="Zecording.close"><a class="viewcode-back" href="../utilities.html#utilities.Zecording.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;File </span><span class="si">{self.path}</span><span class="s1"> closed&#39;</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">available_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_avail_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">property_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">Zecording</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">Zecording</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="nb">property</span><span class="p">)]</span>
+            <span class="n">available</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">property_names</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="s1">&#39;available_data&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_avail_data</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">available</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_avail_data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">single_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Names (str) of data sets in Zecording that are a single time traces</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">default_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;behavior&#39;</span><span class="p">,</span> <span class="s1">&#39;stimulus&#39;</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_single_data</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">default_options</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_data</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_single_data</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_data</span>
+
+    <span class="nd">@single_data</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">single_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_single_data</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">multi_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Names (str) of data sets in Zecording that are multi time traces</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multi_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_multi_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multi_data</span>
+
+    <span class="nd">@multi_data</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">multi_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_multi_data</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="Zecording.compute_analysis"><a class="viewcode-back" href="../utilities.html#utilities.Zecording.compute_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">compute_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applying some analysis function to a Zecording object</span>
+<span class="sd">        Named parameters can be passed</span>
+<span class="sd">        Result is stored in `func_name_res`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        func: function</span>
+<span class="sd">            Function to apply</span>
+<span class="sd">            Must have signature of the form func(zecording, kwargs)</span>
+<span class="sd">        kwargs: dict</span>
+<span class="sd">            Additional arguments to be passed to `func`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        res</span>
+<span class="sd">            Result from the analysis function</span>
+<span class="sd">        res_name: str</span>
+<span class="sd">            Assigned name to the analysis result as added to the Zecording available data</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res_name</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{func.__name__}</span><span class="s1">_res&#39;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1">#setattr(self, res_name, res)  # this is done in the Fishualizer.py in add_static()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_avail_data</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">res_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span><span class="p">,</span> <span class="n">res_name</span>  <span class="c1"># return to feed into add_static</span></div>
+
+<div class="viewcode-block" id="Zecording.add_supp_single_data"><a class="viewcode-back" href="../utilities.html#utilities.Zecording.add_supp_single_data">[docs]</a>    <span class="k">def</span> <span class="nf">add_supp_single_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_name</span><span class="p">,</span> <span class="n">s_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to add supplementary single data to rec.</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            - s_name, str: name of new data trace</span>
+<span class="sd">            - s_data, float with shape of single time trace</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_name</span><span class="p">,</span> <span class="n">s_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">available_data</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">single_data</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Zecording.reverse_z_coords"><a class="viewcode-back" href="../utilities.html#utilities.Zecording.reverse_z_coords">[docs]</a>    <span class="k">def</span> <span class="nf">reverse_z_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Function to reverse the z coordinates.</span>
+
+<span class="sd">        The fishualizer cannot rotate 360deg, one might want to change the orientation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;coords&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;ref_coords&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ref_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{dataset}</span><span class="s1"> not a valid data set&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;Recording from </span><span class="si">{self.path}</span><span class="s1">&#39;</span>
+
+    <span class="fm">__str__</span> <span class="o">=</span> <span class="fm">__repr__</span></div>
+
+
+<div class="viewcode-block" id="create_density_map"><a class="viewcode-back" href="../utilities.html#utilities.create_density_map">[docs]</a><span class="k">def</span> <span class="nf">create_density_map</span><span class="p">(</span><span class="n">gridfile</span><span class="p">,</span> <span class="n">map_type</span> <span class="o">=</span> <span class="s1">&#39;density_map&#39;</span><span class="p">,</span> <span class="n">den_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">den_scale</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create 4D matrix which can be used to draw a density map (by Fishualizer.draw_density_map()).</span>
+
+<span class="sd">    A grid file is loaded which contains coords (n, 3) and clusters (n, 1) each.</span>
+<span class="sd">    The resulting 4D matrix is (x, y, z, RGBA). Alternatively; one could think of</span>
+<span class="sd">    this as 4 different 3D matrices (x, y, z). Every value indicates the Red, Green,</span>
+<span class="sd">    Blue, Alpha value respectively for the 4 matrices. Importantly; coordinates are NOT</span>
+<span class="sd">    encoded in the matrices. GLVolumeItem assumes a 1x1x1 grid. This is rescaled</span>
+<span class="sd">    in this function (using the info from gridfile[&#39;coords&#39;]).</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -------------</span>
+<span class="sd">        gridfile: str</span>
+<span class="sd">            directory where the grid file with clusters is located</span>
+<span class="sd">        map_type; str (&#39;density_map&#39;, &#39;hard_threshold&#39;)</span>
+<span class="sd">        den_threshold: float or None</span>
+<span class="sd">            threshold for cut-off of density map. If None, it defaults to 0 for map_type == &#39;density_map&#39;</span>
+<span class="sd">            and to 0,0005 for map_type == &#39;hard_threshold&#39;</span>
+<span class="sd">        den_scale: float, int</span>
+<span class="sd">            if maptype == &#39;density_map&#39;, the density is normalized to the max value, and</span>
+<span class="sd">            the intensity (alpha) value is subsequently linearly scaled with the normalized</span>
+<span class="sd">            density, multiplied by density_scale_factor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hfile</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">gridfile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">data_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">hfile</span><span class="p">[</span><span class="s1">&#39;Data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">dn</span> <span class="ow">in</span> <span class="n">data_names</span><span class="p">:</span>  <span class="c1"># extract all data sets</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">dn</span><span class="p">]</span> <span class="o">=</span> <span class="n">hfile</span><span class="p">[</span><span class="s1">&#39;Data&#39;</span><span class="p">][</span><span class="n">dn</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+    <span class="n">x_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">])</span>  <span class="c1"># x values in grid</span>
+    <span class="n">n_x</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_vals</span><span class="p">)</span>  <span class="c1"># number of x values</span>
+    <span class="n">y_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">n_y</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_vals</span><span class="p">)</span>
+    <span class="n">z_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">n_z</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">z_vals</span><span class="p">)</span>
+    <span class="n">resolution</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x_vals</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y_vals</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">z_vals</span><span class="p">))]</span>  <span class="c1"># it is exported as a cubic grid so resolutions should be equal in all dimensions</span>
+    <span class="n">min_coords</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># minimum used to translate density map in Fishualizer.draw_density_map()</span>
+
+    <span class="n">cluster_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">dn</span> <span class="ow">in</span> <span class="n">data_names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dn</span> <span class="o">!=</span> <span class="s1">&#39;coords&#39;</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">dn</span> <span class="o">+</span> <span class="s1">&#39;_nf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">dn</span><span class="p">],</span> <span class="p">(</span><span class="n">n_x</span><span class="p">,</span> <span class="n">n_y</span><span class="p">,</span> <span class="n">n_z</span><span class="p">))</span>  <span class="c1"># put cluster densities in new format (1D -&gt; 3D)</span>
+            <span class="n">cluster_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dn</span><span class="p">)</span>
+    <span class="c1"># nf_cluster_names = [x for x in list(data.keys()) if x[-3:] == &#39;_nf&#39;]  # list of names to use</span>
+    <span class="c1"># colours = {nf_cluster_names[0]: [255, 0, 0, 0],</span>
+    <span class="c1">#             nf_cluster_names[1]: [0, 255, 0, 0],</span>
+    <span class="c1">#             nf_cluster_names[2]: [0, 0, 255, 0],</span>
+    <span class="c1">#             nf_cluster_names[3]: [128, 128, 0, 0],</span>
+    <span class="c1">#             nf_cluster_names[4]: [0, 128, 128, 0]}  # colours of clusters  # TODO: import color dict</span>
+    <span class="n">nf_cluster_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;positive_mixed_nf&#39;</span><span class="p">,</span> <span class="s1">&#39;negative_mixed_nf&#39;</span><span class="p">,</span> <span class="s1">&#39;posnegderiv_high95_nf&#39;</span><span class="p">]</span>
+    <span class="n">colours</span> <span class="o">=</span> <span class="p">{</span><span class="n">nf_cluster_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">113</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="n">nf_cluster_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">157</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="n">nf_cluster_names</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="p">[</span><span class="mi">184</span><span class="p">,</span> <span class="mi">134</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">0</span><span class="p">]}</span>  <span class="c1"># hard coded colors of regression clusters Migault et al., 2018</span>
+    <span class="c1"># maxnorm = {cn: data[cn].max() for cn in nf_cluster_names}  # max density per cluster (for colour normalization)</span>
+    <span class="n">maxnorm</span> <span class="o">=</span> <span class="p">{</span><span class="n">cn</span><span class="p">:</span> <span class="mf">0.0005</span> <span class="k">for</span> <span class="n">cn</span> <span class="ow">in</span> <span class="n">nf_cluster_names</span><span class="p">}</span>  <span class="c1"># uniform max density (for colour normalization)</span>
+
+    <span class="n">dataplot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_x</span><span class="p">,</span> <span class="n">n_y</span><span class="p">,</span> <span class="n">n_z</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">4</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ubyte</span><span class="p">)</span>  <span class="c1"># create 4D data matrix to plot (x,y,z,RGBA)</span>
+
+    <span class="c1">## Assign RGBA values in series</span>
+    <span class="k">if</span> <span class="n">den_threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">map_type</span> <span class="o">==</span> <span class="s1">&#39;density_map&#39;</span><span class="p">:</span>
+            <span class="n">den_threshold</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># DENSITY MAP</span>
+        <span class="k">elif</span> <span class="n">map_type</span> <span class="o">==</span> <span class="s1">&#39;hard_threshold&#39;</span><span class="p">:</span>
+            <span class="n">den_threshold</span> <span class="o">=</span> <span class="mf">0.00005</span>  <span class="c1"># HARD THRESHOLD MAP</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">):</span> <span class="c1"># loop through all coords to assign RGBA</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_y</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_z</span><span class="p">):</span>
+                <span class="n">max_den</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">cn</span> <span class="ow">in</span> <span class="n">nf_cluster_names</span><span class="p">:</span>  <span class="c1"># check all clusters to find max one</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">den_threshold</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_den</span><span class="p">):</span>
+                        <span class="n">max_den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">max_den</span><span class="p">)</span>  <span class="c1"># DENSITY MAP</span>
+                        <span class="n">dataplot</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">colours</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">map_type</span> <span class="o">==</span> <span class="s1">&#39;density_map&#39;</span><span class="p">:</span>
+                            <span class="n">dataplot</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span><span class="p">(</span> <span class="n">max_den</span> <span class="o">/</span> <span class="n">maxnorm</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">*</span> <span class="n">den_scale</span>  <span class="c1"># DENSITY MAP</span>
+                        <span class="k">elif</span> <span class="n">map_type</span> <span class="o">==</span> <span class="s1">&#39;hard_threshold&#39;</span><span class="p">:</span>
+                            <span class="n">dataplot</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># HARD THRESHOLD MAP</span>
+
+    <span class="k">return</span> <span class="n">dataplot</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">min_coords</span></div>
+
+
+<div class="viewcode-block" id="load_zbrain_regions"><a class="viewcode-back" href="../utilities.html#utilities.load_zbrain_regions">[docs]</a><span class="k">def</span> <span class="nf">load_zbrain_regions</span><span class="p">(</span><span class="n">recording</span><span class="p">,</span> <span class="n">zbrainfile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load ZBrainAtlas regions that are saved in the custom-format .h5 file.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    ------------</span>
+<span class="sd">        recording: instance of Zecording class</span>
+<span class="sd">            Data is added to this recording</span>
+<span class="sd">        zbrainfile: str (default None)</span>
+<span class="sd">            directory where file is located, if None it defaults to hard-coded dir.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    ----------</span>
+<span class="sd">        bool: indicating success</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">zbrainfile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">zbrainfile</span> <span class="o">=</span> <span class="n">cwd</span> <span class="o">+</span> <span class="s1">&#39;/Data/ZBrainAtlas/ZBrainAtlas_Outlines.h5&#39;</span>
+
+    <span class="k">if</span> <span class="n">zbrainfile</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;.h5&#39;</span><span class="p">:</span>
+        <span class="n">hfile</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">zbrainfile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">data_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">hfile</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">dn</span> <span class="ow">in</span> <span class="n">data_names</span><span class="p">:</span>  <span class="c1"># extract all data sets</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">dn</span><span class="p">]</span> <span class="o">=</span> <span class="n">hfile</span><span class="p">[</span><span class="n">dn</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+
+
+        <span class="k">if</span> <span class="s1">&#39;region_indices&#39;</span> <span class="ow">in</span> <span class="n">data_names</span> <span class="ow">and</span> <span class="s1">&#39;grid_coordinates&#39;</span> <span class="ow">in</span> <span class="n">data_names</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;region_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;region_indices&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># convert from 1-indexing (matlab) to zero-indexing</span>
+
+            <span class="c1">## Below: change to correct orientation</span>
+            <span class="n">max_grid_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;resolution&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Zs&#39;</span><span class="p">]])</span>
+            <span class="n">long_axis_flipped</span> <span class="o">=</span> <span class="n">max_grid_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;grid_coordinates&#39;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;grid_coordinates&#39;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">long_axis_flipped</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;grid_coordinates&#39;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;grid_coordinates&#39;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;grid_coordinates&#39;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;grid_coordinates&#39;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;grid_coordinates&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;grid_coordinates&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">1000</span>  <span class="c1"># go to mm</span>
+
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">recording</span><span class="p">,</span> <span class="s1">&#39;zbrainatlas_coordinates&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;grid_coordinates&#39;</span><span class="p">])</span>  <span class="c1"># add to recording</span>
+            <span class="n">recording</span><span class="o">.</span><span class="n">available_data</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;zbrainatlas_coordinates&#39;</span><span class="p">)</span>  <span class="c1"># don&#39;t use [..]_coords here because coords is used for plotting</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">recording</span><span class="p">,</span> <span class="s1">&#39;zbrainatlas_regions&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;region_indices&#39;</span><span class="p">])</span>
+            <span class="n">recording</span><span class="o">.</span><span class="n">available_data</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;zbrainatlas_regions&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;ZBrainAtlas succesfully added&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;ZBrainAtlas not loaded because region_indices and grid_coordinates were not found in the file </span><span class="si">{zbrainfile}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Rémi Proville, Thijs van der Plas, Bernhard Englitz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

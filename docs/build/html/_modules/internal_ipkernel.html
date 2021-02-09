@@ -1,0 +1,109 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>internal_ipkernel &#8212; Fishualizer 3 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for internal_ipkernel</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ipykernel</span> <span class="k">import</span> <span class="n">connect_qtconsole</span>
+<span class="kn">from</span> <span class="nn">ipykernel.kernelapp</span> <span class="k">import</span> <span class="n">IPKernelApp</span>
+
+
+<div class="viewcode-block" id="mpl_kernel"><a class="viewcode-back" href="../internal_ipkernel.html#internal_ipkernel.mpl_kernel">[docs]</a><span class="k">def</span> <span class="nf">mpl_kernel</span><span class="p">(</span><span class="n">gui</span><span class="o">=</span><span class="s1">&#39;qt&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Launch and return an IPython kernel with matplotlib support for the desired gui</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kernel</span> <span class="o">=</span> <span class="n">IPKernelApp</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
+    <span class="n">kernel</span><span class="o">.</span><span class="n">initialize</span><span class="p">([</span><span class="s1">&#39;python&#39;</span><span class="p">,</span> <span class="s1">&#39;--matplotlib=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">gui</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">kernel</span></div>
+
+
+<div class="viewcode-block" id="InternalIPKernel"><a class="viewcode-back" href="../internal_ipkernel.html#internal_ipkernel.InternalIPKernel">[docs]</a><span class="k">class</span> <span class="nc">InternalIPKernel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ipkernel</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># To create and track active qt consoles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="InternalIPKernel.init_ipkernel"><a class="viewcode-back" href="../internal_ipkernel.html#internal_ipkernel.InternalIPKernel.init_ipkernel">[docs]</a>    <span class="k">def</span> <span class="nf">init_ipkernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;qt&#39;</span><span class="p">):</span>
+        <span class="c1"># Start IPython kernel with GUI event loop and mpl support</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ipkernel</span> <span class="o">=</span> <span class="n">mpl_kernel</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+
+        <span class="c1"># This application will also act on the shell user namespace</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ipkernel</span><span class="o">.</span><span class="n">shell</span><span class="o">.</span><span class="n">user_ns</span></div>
+
+<div class="viewcode-block" id="InternalIPKernel.new_qt_console"><a class="viewcode-back" href="../internal_ipkernel.html#internal_ipkernel.InternalIPKernel.new_qt_console">[docs]</a>    <span class="k">def</span> <span class="nf">new_qt_console</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;start a new qtconsole connected to our kernel&quot;&quot;&quot;</span>
+        <span class="n">new_console</span> <span class="o">=</span> <span class="n">connect_qtconsole</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ipkernel</span><span class="o">.</span><span class="n">abs_connection_file</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ipkernel</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_console</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Rémi Proville, Thijs van der Plas, Bernhard Englitz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,422 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Controls module &#8212; Fishualizer 3 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-Controls">
+<span id="controls-module"></span><h1>Controls module<a class="headerlink" href="#module-Controls" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="Controls.AssignLoadedData">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">AssignLoadedData</code><a class="reference internal" href="_modules/Controls.html#AssignLoadedData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.AssignLoadedData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QInputDialog</span></code></p>
+<dl class="method">
+<dt id="Controls.AssignLoadedData.assign_data">
+<code class="descname">assign_data</code><span class="sig-paren">(</span><em>loaded_data</em>, <em>options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#AssignLoadedData.assign_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.AssignLoadedData.assign_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.ClusterColorModel">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">ClusterColorModel</code><span class="sig-paren">(</span><em>data: list</em>, <em>columns=('Dataset'</em>, <em>'Color'</em>, <em>'Alpha'</em>, <em>'Selected')</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ClusterColorModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ClusterColorModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QAbstractTableModel</span></code></p>
+<dl class="method">
+<dt id="Controls.ClusterColorModel.columnCount">
+<code class="descname">columnCount</code><span class="sig-paren">(</span><em>self</em>, <em>parent: QModelIndex = QModelIndex()</em><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/Controls.html#ClusterColorModel.columnCount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ClusterColorModel.columnCount" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.ClusterColorModel.data">
+<code class="descname">data</code><span class="sig-paren">(</span><em>self</em>, <em>QModelIndex</em>, <em>role: int = Qt.DisplayRole</em><span class="sig-paren">)</span> &#x2192; Any<a class="reference internal" href="_modules/Controls.html#ClusterColorModel.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ClusterColorModel.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.ClusterColorModel.flags">
+<code class="descname">flags</code><span class="sig-paren">(</span><em>self</em>, <em>QModelIndex</em><span class="sig-paren">)</span> &#x2192; Qt.ItemFlags<a class="reference internal" href="_modules/Controls.html#ClusterColorModel.flags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ClusterColorModel.flags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.ClusterColorModel.headerData">
+<code class="descname">headerData</code><span class="sig-paren">(</span><em>self</em>, <em>int</em>, <em>Qt.Orientation</em>, <em>role: int = Qt.DisplayRole</em><span class="sig-paren">)</span> &#x2192; Any<a class="reference internal" href="_modules/Controls.html#ClusterColorModel.headerData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ClusterColorModel.headerData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.ClusterColorModel.insertRow">
+<code class="descname">insertRow</code><span class="sig-paren">(</span><em>self</em>, <em>int</em>, <em>parent: QModelIndex = QModelIndex()</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/Controls.html#ClusterColorModel.insertRow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ClusterColorModel.insertRow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.ClusterColorModel.rowCount">
+<code class="descname">rowCount</code><span class="sig-paren">(</span><em>self</em>, <em>parent: QModelIndex = QModelIndex()</em><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/Controls.html#ClusterColorModel.rowCount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ClusterColorModel.rowCount" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.ClusterColorModel.setData">
+<code class="descname">setData</code><span class="sig-paren">(</span><em>self</em>, <em>QModelIndex</em>, <em>Any</em>, <em>role: int = Qt.EditRole</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/Controls.html#ClusterColorModel.setData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ClusterColorModel.setData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.ClusterDialog">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">ClusterDialog</code><span class="sig-paren">(</span><em>parent</em>, <em>datasets=()</em>, <em>data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ClusterDialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ClusterDialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+<p>Window showed to select which clusters to display and in which color</p>
+<dl class="method">
+<dt id="Controls.ClusterDialog.quit">
+<code class="descname">quit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ClusterDialog.quit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ClusterDialog.quit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.ClusterDialog.return_colors">
+<code class="descname">return_colors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ClusterDialog.return_colors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ClusterDialog.return_colors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.ColorPickerCombo">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">ColorPickerCombo</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ColorPickerCombo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ColorPickerCombo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QComboBox</span></code></p>
+<p>Subclassing a combobox to make an automatic list of Qt colors with a colored square for each item</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.ColorRangePicker">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">ColorRangePicker</code><span class="sig-paren">(</span><em>cmap</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ColorRangePicker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ColorRangePicker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QLabel</span></code></p>
+<p>Subclass of QLabel used to make color range picker.
+A custom color gradient is shown and the user is able to set a range by left/right clicks to chose the two ends
+of the range</p>
+<dl class="attribute">
+<dt id="Controls.ColorRangePicker.bottom_limit">
+<code class="descname">bottom_limit</code><a class="headerlink" href="#Controls.ColorRangePicker.bottom_limit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="Controls.ColorRangePicker.cmap">
+<code class="descname">cmap</code><a class="headerlink" href="#Controls.ColorRangePicker.cmap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.ColorRangePicker.mousePressEvent">
+<code class="descname">mousePressEvent</code><span class="sig-paren">(</span><em>ev: PyQt5.QtGui.QMouseEvent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ColorRangePicker.mousePressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ColorRangePicker.mousePressEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overridding the default mouse press event to trigger a custom signal
+If left click, triggers a top_limit event, if right then triggers a bottom_limit event.
+The custom events carry information on the relative position of the click as to make finding the corresponding
+color easy</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ev</strong> (<em>QtGui.QMouseEvent</em>) – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Controls.ColorRangePicker.paintEvent">
+<code class="descname">paintEvent</code><span class="sig-paren">(</span><em>a0: PyQt5.QtGui.QPaintEvent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ColorRangePicker.paintEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ColorRangePicker.paintEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overridding the default paint event (refresh of the QLabel) to plot the gradient
+It is a Qt thing to add any custom display in the paintEvent so that it is done when necessary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>a0</strong> (<em>QtGui.QPaintEvent</em>) – Just passed to the parent function</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Controls.ColorRangePicker.top_limit">
+<code class="descname">top_limit</code><a class="headerlink" href="#Controls.ColorRangePicker.top_limit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.CorrelationDialog">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">CorrelationDialog</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#CorrelationDialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.CorrelationDialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+<p>Class that creates the compute correlation dialog
+correlation_single: QComboBox
+correlation_multi: QComboBox
+press_button: QPushButton that connects to parent.compute_correlation_function</p>
+<blockquote>
+<div>to compute correlation between correlation_single and correlation_multi</div></blockquote>
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.ExtendedComboBox">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">ExtendedComboBox</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ExtendedComboBox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ExtendedComboBox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QComboBox</span></code></p>
+<dl class="method">
+<dt id="Controls.ExtendedComboBox.on_completer_activated">
+<code class="descname">on_completer_activated</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ExtendedComboBox.on_completer_activated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ExtendedComboBox.on_completer_activated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.ExtendedComboBox.setModel">
+<code class="descname">setModel</code><span class="sig-paren">(</span><em>self</em>, <em>QAbstractItemModel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ExtendedComboBox.setModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ExtendedComboBox.setModel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.ExtendedComboBox.setModelColumn">
+<code class="descname">setModelColumn</code><span class="sig-paren">(</span><em>self</em>, <em>int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ExtendedComboBox.setModelColumn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ExtendedComboBox.setModelColumn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.GLViewWidgetPos">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">GLViewWidgetPos</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#GLViewWidgetPos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.GLViewWidgetPos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyqtgraph.opengl.GLViewWidget.GLViewWidget</span></code></p>
+<dl class="method">
+<dt id="Controls.GLViewWidgetPos.mousePressEvent">
+<code class="descname">mousePressEvent</code><span class="sig-paren">(</span><em>self</em>, <em>QMouseEvent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#GLViewWidgetPos.mousePressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.GLViewWidgetPos.mousePressEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.GLViewWidgetPos.mouseReleaseEvent">
+<code class="descname">mouseReleaseEvent</code><span class="sig-paren">(</span><em>self</em>, <em>QMouseEvent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#GLViewWidgetPos.mouseReleaseEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.GLViewWidgetPos.mouseReleaseEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.GLViewWidgetPos.orbit">
+<code class="descname">orbit</code><span class="sig-paren">(</span><em>azim</em>, <em>elev</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#GLViewWidgetPos.orbit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.GLViewWidgetPos.orbit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Orbits the camera around the center position. <em>azim</em> and <em>elev</em> are given in degrees.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.LogModel">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">LogModel</code><span class="sig-paren">(</span><em>data: list</em>, <em>columns=('time'</em>, <em>'file'</em>, <em>'function'</em>, <em>'line'</em>, <em>'level'</em>, <em>'message')</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#LogModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.LogModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QAbstractTableModel</span></code></p>
+<dl class="method">
+<dt id="Controls.LogModel.columnCount">
+<code class="descname">columnCount</code><span class="sig-paren">(</span><em>self</em>, <em>parent: QModelIndex = QModelIndex()</em><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/Controls.html#LogModel.columnCount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.LogModel.columnCount" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.LogModel.data">
+<code class="descname">data</code><span class="sig-paren">(</span><em>self</em>, <em>QModelIndex</em>, <em>role: int = Qt.DisplayRole</em><span class="sig-paren">)</span> &#x2192; Any<a class="reference internal" href="_modules/Controls.html#LogModel.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.LogModel.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.LogModel.headerData">
+<code class="descname">headerData</code><span class="sig-paren">(</span><em>self</em>, <em>int</em>, <em>Qt.Orientation</em>, <em>role: int = Qt.DisplayRole</em><span class="sig-paren">)</span> &#x2192; Any<a class="reference internal" href="_modules/Controls.html#LogModel.headerData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.LogModel.headerData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.LogModel.insertRow">
+<code class="descname">insertRow</code><span class="sig-paren">(</span><em>self</em>, <em>int</em>, <em>parent: QModelIndex = QModelIndex()</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/Controls.html#LogModel.insertRow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.LogModel.insertRow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.LogModel.rowCount">
+<code class="descname">rowCount</code><span class="sig-paren">(</span><em>self</em>, <em>parent: QModelIndex = QModelIndex()</em><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/Controls.html#LogModel.rowCount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.LogModel.rowCount" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.LogWindow">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">LogWindow</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#LogWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.LogWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+<dl class="attribute">
+<dt id="Controls.LogWindow.logger">
+<code class="descname">logger</code><em class="property"> = &lt;Logger Fishlog (WARNING)&gt;</em><a class="headerlink" href="#Controls.LogWindow.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.OpenDataDialog">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">OpenDataDialog</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#OpenDataDialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.OpenDataDialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QFileDialog</span></code></p>
+<dl class="method">
+<dt id="Controls.OpenDataDialog.getOpenFileName">
+<code class="descname">getOpenFileName</code><span class="sig-paren">(</span><em>parent</em>, <em>caption: str</em>, <em>directory: str</em>, <em>filter: str</em>, <em>initialFilter=''</em>, <em>options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#OpenDataDialog.getOpenFileName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.OpenDataDialog.getOpenFileName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open a window to select a data file and set a few options.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>parent</strong> – </li>
+<li><strong>caption</strong> (<em>str</em>) – Window caption</li>
+<li><strong>directory</strong> (<em>str</em>) – Current directory</li>
+<li><strong>filter</strong> (<em>str</em>) – Valid file types</li>
+<li><strong>initialFilter</strong> (<em>str</em>) – </li>
+<li><strong>options</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>filepath</strong> (<em>str</em>) – Path to data. ‘’ if cancel</li>
+<li><strong>filter</strong> (<em>str</em>) – Valid file extension</li>
+<li><strong>ignorelags</strong> (<em>bool</em>) – Should we ignore the lags when loading data</li>
+<li><strong>foreceinterp</strong> (<em>bool</em>) – Should the interpolation be forced, ie done even if already stored in the data file</li>
+<li><strong>dataformat</strong> (<em>str</em>) – Orientation of the data</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.QTableLog">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">QTableLog</code><span class="sig-paren">(</span><em>parent</em>, <em>level=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#QTableLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.QTableLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">logging.Handler</span></code></p>
+<dl class="method">
+<dt id="Controls.QTableLog.emit">
+<code class="descname">emit</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#QTableLog.emit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.QTableLog.emit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do whatever it takes to actually log the specified logging record.</p>
+<p>This version is intended to be implemented by subclasses and so
+raises a NotImplementedError.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.SelectCellDialog">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">SelectCellDialog</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#SelectCellDialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.SelectCellDialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.ShortcutsDialog">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">ShortcutsDialog</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#ShortcutsDialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.ShortcutsDialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.StaticDataDialog">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">StaticDataDialog</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#StaticDataDialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.StaticDataDialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="Controls.TableDelegate">
+<em class="property">class </em><code class="descclassname">Controls.</code><code class="descname">TableDelegate</code><span class="sig-paren">(</span><em>parent</em>, <em>datasets=()</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#TableDelegate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.TableDelegate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QItemDelegate</span></code></p>
+<p>Take care of creating the widgets used to edit the cluster/color table so that we can fine tune them to our needs</p>
+<dl class="method">
+<dt id="Controls.TableDelegate.createEditor">
+<code class="descname">createEditor</code><span class="sig-paren">(</span><em>self</em>, <em>QWidget</em>, <em>QStyleOptionViewItem</em>, <em>QModelIndex</em><span class="sig-paren">)</span> &#x2192; QWidget<a class="reference internal" href="_modules/Controls.html#TableDelegate.createEditor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.TableDelegate.createEditor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Controls.TableDelegate.editorEvent">
+<code class="descname">editorEvent</code><span class="sig-paren">(</span><em>event</em>, <em>model</em>, <em>option</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#TableDelegate.editorEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.TableDelegate.editorEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the data in the model and the state of the checkbox
+if the user presses the left mousebutton and this cell is editable. Otherwise do nothing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Controls.TableDelegate.paint">
+<code class="descname">paint</code><span class="sig-paren">(</span><em>self</em>, <em>QPainter</em>, <em>QStyleOptionViewItem</em>, <em>QModelIndex</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#TableDelegate.paint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.TableDelegate.paint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="Controls.remove_alpha">
+<code class="descclassname">Controls.</code><code class="descname">remove_alpha</code><span class="sig-paren">(</span><em>gradient</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Controls.html#remove_alpha"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Controls.remove_alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove transparency from the colors of a QLinearGradient</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gradient</strong> (<em>QLinearGradient</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>n_gradient</strong> – Opaque gradient</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">QLinearGradient</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Rémi Proville, Thijs van der Plas, Bernhard Englitz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/Controls.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

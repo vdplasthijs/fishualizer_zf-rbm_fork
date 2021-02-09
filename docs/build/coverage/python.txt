@@ -1,0 +1,14 @@
+Undocumented Python objects
+===========================
+Controls
+--------
+Classes:
+ * AssignLoadedData
+ * GLViewWidgetPos
+ * LogModel
+ * LogWindow
+ * QTableLog
+ * SelectCellDialog
+ * ShortcutsDialog
+ * StaticDataDialog
+

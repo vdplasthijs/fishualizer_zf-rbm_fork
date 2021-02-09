@@ -1,0 +1,1321 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Fishualizer module &#8212; Fishualizer 3 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-Fishualizer">
+<span id="fishualizer-module"></span><h1>Fishualizer module<a class="headerlink" href="#module-Fishualizer" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="Fishualizer.Fishualizer">
+<em class="property">class </em><code class="descclassname">Fishualizer.</code><code class="descname">Fishualizer</code><span class="sig-paren">(</span><em>argv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Fishualizer.Viewer" title="Fishualizer.Viewer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fishualizer.Viewer</span></code></a></p>
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.add_connectivity">
+<code class="descname">add_connectivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.add_connectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.add_connectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add sparse connectivity matrix to two static data sets (input and output).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.add_scale_bar">
+<code class="descname">add_scale_bar</code><span class="sig-paren">(</span><em>start=[0.5, 0, 0], end=[0.5, 0.1, 0], bar_width=4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.add_scale_bar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.add_scale_bar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a scale bar to the plot.</p>
+<p>Scale bar is stored in self.scale_bar and added to self.view3D. This function
+overwrites previous scale bar if it exists.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>start: list of 3 floats</dt>
+<dd>start coordinates [x, y, z] of scale bar</dd>
+<dt>end: list of 3 floats</dt>
+<dd>end coordinates [x, y, z] of scale bar</dd>
+<dt>bar_width: float/int</dt>
+<dd>width of scale bar</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.add_static">
+<code class="descname">add_static</code><span class="sig-paren">(</span><em>c_data</em>, <em>dataname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.add_static"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.add_static" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a static data set to Zecording and set appropriate internal parameters</p>
+<dl class="docutils">
+<dt>c_data:  # TODO: require this to be of correct dimenions (n_cells x 1)?</dt>
+<dd>dataset to add</dd>
+<dt>dataname: str</dt>
+<dd>dataname to use, # DONE: check if already exists, else alter to avoid overwriting?</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.add_static_gui">
+<code class="descname">add_static_gui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.add_static_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.add_static_gui" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call UI to add static data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.add_supplementary_traces">
+<code class="descname">add_supplementary_traces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.add_supplementary_traces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.add_supplementary_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add some supplementary single traces to the data set.</p>
+<p>Calling this function adds some pre-defined functions (related to the stimulus) to Zecording class
+This function can currently only be accessed from the console.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.add_zbrainatlas">
+<code class="descname">add_zbrainatlas</code><span class="sig-paren">(</span><em>filepath=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.add_zbrainatlas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.add_zbrainatlas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load full ZBrainAtlas regions.
+Parameter:
+———–</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>filepath: str</dt>
+<dd>filepath where the ZBrainAtlas outlines are located.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Fishualizer.alpha">
+<code class="descname">alpha</code><a class="headerlink" href="#Fishualizer.Fishualizer.alpha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Fishualizer.alpha_mode">
+<code class="descname">alpha_mode</code><a class="headerlink" href="#Fishualizer.Fishualizer.alpha_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.alpha_setter">
+<code class="descname">alpha_setter</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.alpha_setter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.alpha_setter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback handling the setting of a new alpha value through the alpha selector</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pos</strong> (<em>float</em>) – Relative position of the click (between 0 and 1)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.animate">
+<code class="descname">animate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.animate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.animate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback function called by the animation Timer
+Dependent on the setting self.animate_mode either a normal rotation is
+performed (self.animate_mode==’default’ and if self._rotate_on_play==1) or
+a preprogrammed (in this function) camera trajectory is executed (self.animate_mode==’fancy_movie’)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.call_reverse_z_coords">
+<code class="descname">call_reverse_z_coords</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.call_reverse_z_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.call_reverse_z_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to call the Zecording.reverse_z_coords() in self.rec</p>
+<p># TODO: swap z legend (Blue one)
+self.rec.reverse_z_coords() reverses the z coordinates by:
+z_new = max(z_old) - (z_old - min(z_old))</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.center_view">
+<code class="descname">center_view</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.center_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.center_view" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the center of the view to the origin.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.change_playtimer_interval">
+<code class="descname">change_playtimer_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.change_playtimer_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.change_playtimer_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the frame rate of the playtimer. This functions prompts a
+QtInputDialog whose output sets the new frame rate.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.change_region_view">
+<code class="descname">change_region_view</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.change_region_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.change_region_view" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle function to change region view between local labels and ZBrainAtlas labels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.closeEvent">
+<code class="descname">closeEvent</code><span class="sig-paren">(</span><em>a0: PyQt5.QtGui.QCloseEvent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>closeEvent of Fishualizer.</p>
+<p>This function is called automatically if UI is closed.
+Closes rec class, informs logger and calls Viewer.closeEvent() which
+further handles closing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.cluster_color">
+<code class="descname">cluster_color</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.cluster_color"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.cluster_color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.compute_correlation_function">
+<code class="descname">compute_correlation_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.compute_correlation_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.compute_correlation_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute correlation between single time trace data and multi time traces data.</p>
+<p>Uses current settings of QComboBoxes in compute_correlation_dialog to fetch data sets
+Adds correlation to static data sets and add to self.rec via add_static()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.compute_correlation_gui">
+<code class="descname">compute_correlation_gui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.compute_correlation_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.compute_correlation_gui" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call UI to compute correlation w.r.t. stimulus or behavior.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.compute_static">
+<code class="descname">compute_static</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.compute_static"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.compute_static" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute static data set based on user input formula.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Fishualizer.current_frame">
+<code class="descname">current_frame</code><a class="headerlink" href="#Fishualizer.Fishualizer.current_frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Fishualizer.current_time">
+<code class="descname">current_time</code><a class="headerlink" href="#Fishualizer.Fishualizer.current_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Fishualizer.data_path">
+<code class="descname">data_path</code><a class="headerlink" href="#Fishualizer.Fishualizer.data_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.draw_clusters">
+<code class="descname">draw_clusters</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.draw_clusters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.draw_clusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to color code different clusters in same plot</p>
+<p># TODO:
+Create legend (use dict names)</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs: dict containing two-tuples (name, hex_code) as values</dt>
+<dd><dl class="first last docutils">
+<dt>dict containing {cl_id: (name, hex_code)}</dt>
+<dd><dl class="first last docutils">
+<dt>name: str</dt>
+<dd>Should be the name of a single data set available
+All nonzero elements are used in cluster plot</dd>
+<dt>hex_code: str or None</dt>
+<dd>Should be hex color code (e.g. ‘#17becdf’)
+Use None if you do not want to specify the color.</dd>
+<dt>alpha: float</dt>
+<dd>Transparency value</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.draw_density_map">
+<code class="descname">draw_density_map</code><span class="sig-paren">(</span><em>datapath=None</em>, <em>maptype='density_map'</em>, <em>cut_off_threshold=None</em>, <em>density_scale_factor=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.draw_density_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.draw_density_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add density map to self.view3D, the plot is created via utilities.create_density_map()</p>
+<p># TODO: add to add_static_gui ?
+Parameters:
+————</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>datapath: str (default to None)</dt>
+<dd>datapath where the density map (in .h5 file) is located. If None,
+it defaults to hard-coded directory.</dd>
+<dt>maptype: str; options: (‘density_map’, ‘hard_threshold’)</dt>
+<dd>type of plot</dd>
+<dt>cut_off_threshold: float or None</dt>
+<dd>threshold for cut-off of density map. If None, it defaults to 0 for map_type == ‘density_map’
+and to 0,0005 for map_type == ‘hard_threshold’</dd>
+<dt>density_scale_factor: float, int</dt>
+<dd>if maptype == ‘density_map’, the density is normalized to the max value, and
+the intensity (alpha) value is subsequently linearly scaled with the normalized
+density, multiplied by density_scale_factor</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.draw_hull">
+<code class="descname">draw_hull</code><span class="sig-paren">(</span><em>coords</em>, <em>iH</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.draw_hull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.draw_hull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a region hull.</p>
+<p>This function is called by region_change().
+Separate all neurons in two groups by kmeans. (For disjoint regions like habenula).
+Split z coords in max 100 bin, compute convex hull per bin. Then create the
+Delaunay triangulation of all neurons in the all convex hulls. Add this as
+a GLMeshItem to self.hulls, which in turn is added to self.view3D</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>coords: np.array [n, 3]</dt>
+<dd>coordinates of all neurons inside the region.</dd>
+<dt>iH: int</dt>
+<dd>index of current hull. If multiple regions are drawn then iH
+keeps track of which region that is.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.draw_outline">
+<code class="descname">draw_outline</code><span class="sig-paren">(</span><em>dim_short=0</em>, <em>dim_long=1</em>, <em>line_width=1</em>, <em>moving_average=True</em>, <em>select_method='minmax'</em>, <em>param_alpha=0.005</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.draw_outline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.draw_outline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw outline of the fish. Use current coordinates or zbrainatlas_coordinates,
+depending on self._use_zbrainatlas_coords
+The outline is drawn for the two dimensional plane (dim_short, dim_long),
+and is saved by the complementary dimension index (dim_other) in self.outline_plot[dim_other].</p>
+<p>Two methods can be used to create the outlines; minmax or alpha_shapeself.
+minmax is faster, but less accurate. The default (by menu access) is currently
+set to ‘minmax’ for speed reasons, the ‘alpha_shape’ (for better figures)
+can be accessed from the console.
+Alternatively, one could also skip every n coordinates to speed up the process,
+but this is currently not implemented because the alpha_shaping will not be
+instantaneous anyway. This might however be nice for less powerful computers. (# TODO)</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>dim_short: int (0, 1, 2)</dt>
+<dd>short dimension of outline</dd>
+<dt>dim_long: int (0, 1, 2).remove(dim_short)</dt>
+<dd>long dimension of outline (this split up is better for min/max outlining)</dd>
+<dt>line_width: float/int?</dt>
+<dd>width of line to draw</dd>
+<dt>moving_average: bool</dt>
+<dd>whether to compute the moving average (per 3 points) of the line (for smoothing)</dd>
+<dt>select_method: str (‘minmax’, ‘alpha_shape’)</dt>
+<dd>which method to use for selecting the points that make the outline of the fish</dd>
+<dt>param_alpha: float</dt>
+<dd>alpha value to use in case select_method == ‘alpha_shape’</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.draw_phase_map">
+<code class="descname">draw_phase_map</code><span class="sig-paren">(</span><em>amp_thresh=0</em>, <em>phase=None</em>, <em>amplitude=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.draw_phase_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.draw_phase_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a phase map given phase &amp; amplitude data. The phase is colored with
+the hsv cmap (same as Migault et al. pub), with the brightness scaled with
+the amplitude.
+If no phase or amplitude are given as input (i.e. there are None), the function
+will try to get them from self.rec</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>amp_thresh: float, int</dt>
+<dd>amplitude threshold, only points with an amplitude greater than amp_thresh
+are selected for plotting (self._selected_inds is updated).</dd>
+<dt>phase: None or np.array with dims (n_cells,)</dt>
+<dd>phases of data.</dd>
+<dt>amplitude: None or np.array with dims (n_cells,)</dt>
+<dd>amplitudes of data.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.draw_xy_outline">
+<code class="descname">draw_xy_outline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.draw_xy_outline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.draw_xy_outline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw outline of xy plane (by calling draw_outline())</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.draw_xz_outline">
+<code class="descname">draw_xz_outline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.draw_xz_outline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.draw_xz_outline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw outline of xz plane (by calling draw_outline())</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.draw_yz_outline">
+<code class="descname">draw_yz_outline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.draw_yz_outline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.draw_yz_outline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw outline of yz plane (by calling draw_outline())</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.edit_cmap">
+<code class="descname">edit_cmap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.edit_cmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.edit_cmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create UI to choose a colormap.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.edit_hide">
+<code class="descname">edit_hide</code><span class="sig-paren">(</span><em>threshold='min'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.edit_hide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.edit_hide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create UI to hide a selection of neurons below or above threshold</p>
+<p>Plot mean trace of visible neurons in behavior_pw widget</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>threshold, ‘min’ or ‘max’:</dt>
+<dd>‘min’ minimum threshold, hide neurons below
+‘max’ maximum threshold, hide neurons above</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.export_selected">
+<code class="descname">export_selected</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.export_selected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.export_selected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the data corresponding the current selection to .npz file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.fast_deconvolv">
+<code class="descname">fast_deconvolv</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.fast_deconvolv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.fast_deconvolv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use OASIS method to deconolve selected cell online.</p>
+<p>Parameters:
+- n: int, index of neuron</p>
+<p>Returns:
+- c, calcium fit (from s)
+- s, inferred spike trace
+- sig_deconv[2], baseline constant of inference</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="Fishualizer.Fishualizer.frame_to_array">
+<em class="property">static </em><code class="descname">frame_to_array</code><span class="sig-paren">(</span><em>frame</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.frame_to_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.frame_to_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.get_current_values">
+<code class="descname">get_current_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.get_current_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.get_current_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the values of all neurons of the current data set and frame</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>current_values: np.array</dt>
+<dd>The numerical values of the current data set and current frame</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.grab_plot">
+<code class="descname">grab_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.grab_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.grab_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a screenshot of self.view3D and save via QFileDialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.inverse_x_axis">
+<code class="descname">inverse_x_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.inverse_x_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.inverse_x_axis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.inverse_y_axis">
+<code class="descname">inverse_y_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.inverse_y_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.inverse_y_axis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.inverse_z_axis">
+<code class="descname">inverse_z_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.inverse_z_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.inverse_z_axis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.leaving">
+<code class="descname">leaving</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.leaving"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.leaving" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the Fishualizer is closed, call Viewer.leaving() to close the kernel
+and then stop video exporting if still recording</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.limit_color_start">
+<code class="descname">limit_color_start</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.limit_color_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.limit_color_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback handling the setting of the top_limit of the color map</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pos</strong> (<em>float</em>) – Relative position of the click (between 0 and 1)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.limit_color_stop">
+<code class="descname">limit_color_stop</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.limit_color_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.limit_color_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback handling the setting of the bottom_limit of the color map</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pos</strong> (<em>float</em>) – Relative position of the click (between 0 and 1)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.limit_colorbar_start">
+<code class="descname">limit_colorbar_start</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.limit_colorbar_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.limit_colorbar_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to change the value of self.disp_start of current data set</p>
+<p>This function is called by valueChanged of limit_color_start_sb (user numerical input QSpinBox)
+It also updates the cmap and the plot.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>value: float</dt>
+<dd>new value of disp_start</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.limit_colorbar_stop">
+<code class="descname">limit_colorbar_stop</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.limit_colorbar_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.limit_colorbar_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to change the value of self.disp_stop</p>
+<p>This function is called by valueChanged of limit_color_stop_sb (user numerical input QSpinBox)
+It also updates the cmap and the plot.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>value: float</dt>
+<dd>new value of disp_stop</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.limit_start">
+<code class="descname">limit_start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.limit_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.limit_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is called if the line edit self.limit_start_le has been edited.</p>
+<p>It puts the (new) current value of the line text in self._limit_start and
+calls neurons_set() which takes care of further updating.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.limit_start_scroll">
+<code class="descname">limit_start_scroll</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.limit_start_scroll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.limit_start_scroll" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is called if the scroll bar self.limit_start_sb is moved.</p>
+<p>It puts the (new) current value of the scroll bar in self._limit_start, matches
+the line text in self.limit_start_le and calls neurons_set() which takes care of further updating.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.limit_stop">
+<code class="descname">limit_stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.limit_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.limit_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is called if the line edit self.limit_stop_le has been edited.</p>
+<p>It puts the (new) current value of the line text in self._limit_stop and
+calls neurons_set() which takes care of further updating.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.limit_stop_scroll">
+<code class="descname">limit_stop_scroll</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.limit_stop_scroll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.limit_stop_scroll" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is called if the scroll bar self.limit_stop_sb is moved.</p>
+<p>It puts the (new) current value of the scroll bar in self._limit_stop, matches
+the line text in self.limit_stop_le and calls neurons_set() which takes care of further updating.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.limitx">
+<code class="descname">limitx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.limitx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.limitx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.limity">
+<code class="descname">limity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.limity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.limity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.limitz">
+<code class="descname">limitz</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.limitz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.limitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open the data file and load the data</p>
+<p>Set the self.rec attribute whose setter will take care of the rest
+Plot the behavior/stimulus plot
+Add labels to menu if labels are available
+Set current self.view3D=None and let update_plot() make a new self.view3D</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.load_static">
+<code class="descname">load_static</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.load_static"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.load_static" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load static data set by calling UI function to select and call add_static() to add.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.make_cmap">
+<code class="descname">make_cmap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.make_cmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.make_cmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the color map in response to a change in start/stop/alpha value and update the plot accordingly</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Fishualizer.nb_times">
+<code class="descname">nb_times</code><a class="headerlink" href="#Fishualizer.Fishualizer.nb_times" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.neurons_set">
+<code class="descname">neurons_set</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.neurons_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.neurons_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions selects the neurons currently visible with the xyz limit bars
+and hides the others.</p>
+<p>It loops through the three dimensions xyz and finds all coords that are
+between the self._limit_start and self._limit_stop. Subsequently self._selected_inds
+is updated and update_plot() is called, which only plots neurons in self._selected_inds</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.pan_back">
+<code class="descname">pan_back</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.pan_back"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.pan_back" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pan backwards.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.pan_front">
+<code class="descname">pan_front</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.pan_front"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.pan_front" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pan forwards.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.pan_left">
+<code class="descname">pan_left</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.pan_left"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.pan_left" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pan leftwards.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.pan_right">
+<code class="descname">pan_right</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.pan_right"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.pan_right" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pan rightwards.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.play">
+<code class="descname">play</code><span class="sig-paren">(</span><em>event=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.play"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.play" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback handling the play button, to pley the movie</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.plot_single_df_trace">
+<code class="descname">plot_single_df_trace</code><span class="sig-paren">(</span><em>y_trace</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.plot_single_df_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.plot_single_df_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot single df/f trace in behavior_pw.</p>
+<p>This can be any single trace, but with x_trace=self.rec.times (because of the XLink)</p>
+<blockquote>
+<div><ul class="simple">
+<li>x_trace</li>
+<li>y_trace</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.plot_time_changed">
+<code class="descname">plot_time_changed</code><span class="sig-paren">(</span><em>marker</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.plot_time_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.plot_time_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function updates self.current_time if the time in one of the plots
+has been changed by the user.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>marker: pg.InfiniteLine class</dt>
+<dd>The vertical time line in the plots are of this instance.
+Their attribute .value() is called to get the new time.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.plot_trace">
+<code class="descname">plot_trace</code><span class="sig-paren">(</span><em>index=0</em>, <em>alt=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.plot_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.plot_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot trace of selected neuron in self.activity_pw</p>
+<p>Calcium trace is deconvolved online, spikes are also plotted.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>index, optional (default = 0)</dt>
+<dd>index of the selected neuron</dd>
+<dt>alt, option (default = 0)</dt>
+<dd>Different neurons can be plotted simultaneously (currently 2 neurons)
+the alt parameter tracks which plot is affected.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Fishualizer.rec">
+<code class="descname">rec</code><a class="headerlink" href="#Fishualizer.Fishualizer.rec" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.recompute_backdrops">
+<code class="descname">recompute_backdrops</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.recompute_backdrops"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.recompute_backdrops" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute common backdrops, like average activity, additional ones can be loaded from outside analysis</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.region_change">
+<code class="descname">region_change</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.region_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.region_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare a new region draw of the currently selected region.</p>
+<p>This function is called if the region combobox is changed, or by other functions
+if a new region needs to be drawn.
+This function removes previous hulls and selects coordinates to be used.
+Then draw_hull() is called for the new region draw.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.region_show">
+<code class="descname">region_show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.region_show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.region_show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable region hulls if region chechbox is checked.</p>
+<p>Set visibility of the different regions. Call self.region_change() to draw the hull
+unless self.hulls exist (when region is unchanged but region_check_cb has been unchecked/checked).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.regions_add">
+<code class="descname">regions_add</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.regions_add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.regions_add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add region names to qcombobox in the GUI.</p>
+<p>This function is called by load_data() if labels are availabel in self.rec</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.remove_all_other_items">
+<code class="descname">remove_all_other_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.remove_all_other_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.remove_all_other_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all items other than data, scale bar, outline or region hulls for
+figure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.reset_view">
+<code class="descname">reset_view</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.reset_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.reset_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.resize_scrollbar">
+<code class="descname">resize_scrollbar</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.resize_scrollbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.resize_scrollbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resize the scroll bar according to the number of time points the data have</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.scale_coordinates">
+<code class="descname">scale_coordinates</code><span class="sig-paren">(</span><em>xscale=1</em>, <em>yscale=1</em>, <em>zscale=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.scale_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.scale_coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale all coordinates in visualization.</p>
+<p>This function does not overwrite the hdf5 data file. It sets
+self.rec.coordinate_scale_factor to the given scaling and updates the plot.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>xscale: float</dt>
+<dd>new scaling of x coordinates</dd>
+<dt>yscale: float</dt>
+<dd>new scaling of y coordinates</dd>
+<dt>zscale: float</dt>
+<dd>new scaling of z coordinates</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.select_cell">
+<code class="descname">select_cell</code><span class="sig-paren">(</span><em>pos_click=None</em>, <em>alt=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.select_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.select_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visually select a neuron based on the camera position and the mouse click position.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>pos_click:</dt>
+<dd>clicked mouse position</dd>
+<dt>alt: 0 or 1</dt>
+<dd>Whether alt is pressed, to know whether to move the alt=0 or alt=1 selection ball</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.select_data_file">
+<code class="descname">select_data_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.select_data_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.select_data_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback function called to open a data file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.select_file_and_load">
+<code class="descname">select_file_and_load</code><span class="sig-paren">(</span><em>option='static'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.select_file_and_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.select_file_and_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>UI to load datasets by browsing through directories.</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>option, str, optional</dt>
+<dd>if ‘connection’ a sparse connectivity matrix is loaded
+else a single static data set must be added.</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<blockquote>
+<div><dl class="docutils">
+<dt>c_data: multiple types possible (dependent on file type)</dt>
+<dd>loaded data set</dd>
+<dt>import_data_method: str, is defined in this function</dt>
+<dd>Because multiple data types can be returned, this parameter gives
+‘instructions’ how to handle the data to the function calling select_file_and_load()</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.selection_change">
+<code class="descname">selection_change</code><span class="sig-paren">(</span><em>selection</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.selection_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.selection_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback method for the combobox allowing to select the displayed data
+It can also be used programmatically to reset the selection</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>selection</strong> (<em>int</em><em> or </em><em>str</em>) – Either the index or the name of the data set to select</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.selection_toggle">
+<code class="descname">selection_toggle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.selection_toggle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.selection_toggle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.set_labelled">
+<code class="descname">set_labelled</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.set_labelled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.set_labelled" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.set_limit_gui">
+<code class="descname">set_limit_gui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.set_limit_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.set_limit_gui" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.show_cell">
+<code class="descname">show_cell</code><span class="sig-paren">(</span><em>index=-1</em>, <em>alt=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.show_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.show_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show white ball around selected cell and plot its trace</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>index</strong> – int, default=-1
+cell index</li>
+<li><strong>0</strong><strong> or </strong><strong>1</strong><strong>, </strong><strong>default=0</strong> (<em>alt</em><em>,</em>) – parameter indicating whether the alt=0 or alt=1 cell is considered</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.show_region_current_cell">
+<code class="descname">show_region_current_cell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.show_region_current_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.show_region_current_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw region of currently selected cell.</p>
+<p>If regions are loaded and a cell is selected, the hull is drawn
+of the corresponding cell. Cells usually have multiple reason, the smallest one is drawn.
+Other regions are printed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Fishualizer.start_color">
+<code class="descname">start_color</code><a class="headerlink" href="#Fishualizer.Fishualizer.start_color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.step_bwd">
+<code class="descname">step_bwd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.step_bwd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.step_bwd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Step one frame backwards in time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.step_fwd">
+<code class="descname">step_fwd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.step_fwd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.step_fwd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Step one frame forwards in time</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Fishualizer.stop_color">
+<code class="descname">stop_color</code><a class="headerlink" href="#Fishualizer.Fishualizer.stop_color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.swap_color_axis">
+<code class="descname">swap_color_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.swap_color_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.swap_color_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change color axis orientation of current data set (self.data_set).</p>
+<p>Currently hard-coded: also change the disp_start and disp_stop. This functionality
+is currently used to view either postive or negative extremes (of e.g.
+correlations), it saves some scrolling to reset the disp_start and disp_stop.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.switch_alpha_mode">
+<code class="descname">switch_alpha_mode</code><span class="sig-paren">(</span><em>mode='additive'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.switch_alpha_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.switch_alpha_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the transparency mode via property self.alpha_mode</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>mode: str, (predefined)</dt>
+<dd>‘additive’
+‘translucent’
+‘opaque’</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.switch_rotation">
+<code class="descname">switch_rotation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.switch_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.switch_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle rotation during play animation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.time_scroll">
+<code class="descname">time_scroll</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.time_scroll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.time_scroll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback function updating the plot when scroll bar is moved</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.time_set">
+<code class="descname">time_set</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.time_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.time_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback function updating the plot when a time is entered</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.toggle_calcium_fit">
+<code class="descname">toggle_calcium_fit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.toggle_calcium_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.toggle_calcium_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle whether to plot the calcium fit in the neuronal plot.</p>
+<p>Calcium fit is calculated (together with inferred spike train) by the OASIS method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.toggle_hideneuropil">
+<code class="descname">toggle_hideneuropil</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.toggle_hideneuropil"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.toggle_hideneuropil" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle visibilty of neuropil on or off.</p>
+<p>Neuropil data is retrieved from self.rec, and should thus be provided in
+the main hdf5 data file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.update_behavior_plot">
+<code class="descname">update_behavior_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.update_behavior_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.update_behavior_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the scaling of the self.mean_selection_plot (w.r.t. self.behavior_pw).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.update_coordinate_system">
+<code class="descname">update_coordinate_system</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.update_coordinate_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.update_coordinate_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot coordinate system for reference of front and scale.</p>
+<p>Parameters (length etc.) are currently hard coded in this function.
+Coordinate system is created and added to self.view3D</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.update_plot">
+<code class="descname">update_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.update_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.update_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the plot, this function is called if something in the data has changed
+(e.g. different frame or different data set)</p>
+<p>This function clips the current values to the interval [self.disp_start,
+self.disp_stop]. Values are mapped to colors via self.cmap. If no instance
+exists in self.Plot3D, initialization features are created (e.g. camera position,
+GLScatterPlotItem, reference axes).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.video_export">
+<code class="descname">video_export</code><span class="sig-paren">(</span><em>event=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.video_export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.video_export" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.video_recording">
+<code class="descname">video_recording</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.video_recording"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.video_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save frame in video_writer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.viewxy">
+<code class="descname">viewxy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.viewxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.viewxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change camera position to xy plane.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.viewxz">
+<code class="descname">viewxz</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.viewxz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.viewxz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change camera position to xz plane.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.viewyz">
+<code class="descname">viewyz</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.viewyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.viewyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change camera position to yz plane.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Fishualizer.viewyz_left">
+<code class="descname">viewyz_left</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Fishualizer.viewyz_left"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Fishualizer.viewyz_left" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change camera position to yz plane.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Fishualizer.Viewer">
+<em class="property">class </em><code class="descclassname">Fishualizer.</code><code class="descname">Viewer</code><a class="reference internal" href="_modules/Fishualizer.html#Viewer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QMainWindow</span></code></p>
+<p>Base class that is not directly used. Its code is defining the basic elements of the GUI
+without having any real logic behind it. It could be automatically created from a GUI creation tool like QTDesigner.
+The idea is to separate form (the GUI elements) and function (what do they do)</p>
+<dl class="method">
+<dt id="Fishualizer.Viewer.add_data">
+<code class="descname">add_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.add_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.add_static_gui">
+<code class="descname">add_static_gui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.add_static_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.add_static_gui" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Viewer.alpha">
+<code class="descname">alpha</code><a class="headerlink" href="#Fishualizer.Viewer.alpha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.call_reverse_z_coords">
+<code class="descname">call_reverse_z_coords</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.call_reverse_z_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.call_reverse_z_coords" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.change_playtimer_interval">
+<code class="descname">change_playtimer_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.change_playtimer_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.change_playtimer_interval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.change_region_view">
+<code class="descname">change_region_view</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.change_region_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.change_region_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.closeEvent">
+<code class="descname">closeEvent</code><span class="sig-paren">(</span><em>a0: PyQt5.QtGui.QCloseEvent</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/Fishualizer.html#Viewer.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>closeEvent of Viewer.</p>
+<p>Calls leaving() to close kernel and then closes the UI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.cluster_color">
+<code class="descname">cluster_color</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.cluster_color"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.cluster_color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.color_bottom_limit">
+<code class="descname">color_bottom_limit</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.color_bottom_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.color_bottom_limit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.color_top_limit">
+<code class="descname">color_top_limit</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.color_top_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.color_top_limit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.compute_correlation_gui">
+<code class="descname">compute_correlation_gui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.compute_correlation_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.compute_correlation_gui" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.console">
+<code class="descname">console</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.console"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.console" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an iPython console</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.draw_xy_outline">
+<code class="descname">draw_xy_outline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.draw_xy_outline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.draw_xy_outline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.draw_xz_outline">
+<code class="descname">draw_xz_outline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.draw_xz_outline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.draw_xz_outline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.draw_yz_outline">
+<code class="descname">draw_yz_outline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.draw_yz_outline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.draw_yz_outline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.edit_cmap">
+<code class="descname">edit_cmap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.edit_cmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.edit_cmap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.edit_hide">
+<code class="descname">edit_hide</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.edit_hide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.edit_hide" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.fast_deconvolv">
+<code class="descname">fast_deconvolv</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.fast_deconvolv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.fast_deconvolv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.grab_plot">
+<code class="descname">grab_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.grab_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.grab_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.help_log">
+<code class="descname">help_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.help_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.help_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the logger.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.help_shortcuts">
+<code class="descname">help_shortcuts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.help_shortcuts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.help_shortcuts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the shortcut dialog pop up.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.inverse_x_axis">
+<code class="descname">inverse_x_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.inverse_x_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.inverse_x_axis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.inverse_y_axis">
+<code class="descname">inverse_y_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.inverse_y_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.inverse_y_axis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.inverse_z_axis">
+<code class="descname">inverse_z_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.inverse_z_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.inverse_z_axis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.layers_scroll_bottom">
+<code class="descname">layers_scroll_bottom</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.layers_scroll_bottom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.layers_scroll_bottom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.layers_scroll_top">
+<code class="descname">layers_scroll_top</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.layers_scroll_top"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.layers_scroll_top" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.leaving">
+<code class="descname">leaving</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.leaving"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.leaving" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the iPython console.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.limitx">
+<code class="descname">limitx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.limitx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.limitx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.limity">
+<code class="descname">limity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.limity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.limity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.limitz">
+<code class="descname">limitz</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.limitz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.limitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.make_alphamap">
+<code class="descname">make_alphamap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.make_alphamap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.make_alphamap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a transparency map</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.make_cmap">
+<code class="descname">make_cmap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.make_cmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.make_cmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a color map</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.play">
+<code class="descname">play</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.play"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.play" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.plot_time_changed">
+<code class="descname">plot_time_changed</code><span class="sig-paren">(</span><em>marker</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.plot_time_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.plot_time_changed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.regionchange">
+<code class="descname">regionchange</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.regionchange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.regionchange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.regionconfirmed">
+<code class="descname">regionconfirmed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.regionconfirmed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.regionconfirmed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.reset_view">
+<code class="descname">reset_view</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.reset_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.reset_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.select_data_file">
+<code class="descname">select_data_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.select_data_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.select_data_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.selection_change">
+<code class="descname">selection_change</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.selection_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.selection_change" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.set_perspective_2d">
+<code class="descname">set_perspective_2d</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.set_perspective_2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.set_perspective_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set perspective of self.view3D to a 2D view. This is done by effectively
+moving out (increase distance) and zooming in (decrease fov).
+The smaller self.view3D.opts[‘fov’] is, the closer one comes to a 2D view,
+but rendering might be slower for very small values of fov.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.set_perspective_3d">
+<code class="descname">set_perspective_3d</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.set_perspective_3d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.set_perspective_3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set perspective of self.view3D to a 3D view (default).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.show_region_current_cell">
+<code class="descname">show_region_current_cell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.show_region_current_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.show_region_current_cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.show_select_cell_dialog">
+<code class="descname">show_select_cell_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.show_select_cell_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.show_select_cell_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the select cell dialog.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Viewer.start_color">
+<code class="descname">start_color</code><a class="headerlink" href="#Fishualizer.Viewer.start_color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="Fishualizer.Viewer.stop_color">
+<code class="descname">stop_color</code><a class="headerlink" href="#Fishualizer.Viewer.stop_color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.swap_color_axis">
+<code class="descname">swap_color_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.swap_color_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.swap_color_axis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.switch_alpha_mode">
+<code class="descname">switch_alpha_mode</code><span class="sig-paren">(</span><em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.switch_alpha_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.switch_alpha_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.time_scroll">
+<code class="descname">time_scroll</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.time_scroll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.time_scroll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.time_set">
+<code class="descname">time_set</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.time_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.time_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.toggle_calcium_fit">
+<code class="descname">toggle_calcium_fit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.toggle_calcium_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.toggle_calcium_fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.toggle_hideneuropil">
+<code class="descname">toggle_hideneuropil</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.toggle_hideneuropil"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.toggle_hideneuropil" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.update_behavior_plot">
+<code class="descname">update_behavior_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.update_behavior_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.update_behavior_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.update_plot">
+<code class="descname">update_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.update_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.update_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fishualizer.Viewer.video_export">
+<code class="descname">video_export</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#Viewer.video_export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.Viewer.video_export" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="Fishualizer.handle_exception">
+<code class="descclassname">Fishualizer.</code><code class="descname">handle_exception</code><span class="sig-paren">(</span><em>exc_type</em>, <em>exc_value</em>, <em>exc_traceback</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Fishualizer.html#handle_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Fishualizer.handle_exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle uncaught exceptions and print in logger.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Rémi Proville, Thijs van der Plas, Bernhard Englitz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/Fishualizer.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
